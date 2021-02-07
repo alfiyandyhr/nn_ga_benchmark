@@ -1,0 +1,57 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+% Neural-Network-based Surrogate Optimization of Benchmark Test Problems       %
+% Author: Alfiyandy Hariansyah                                                 %
+% Institution: Institute of Fluid Science, Tohoku University                   %
+% Date: 2/7/2021                                                               %
+% CFD Solver: SU2                                                              %
+% Mesh software: Pointwise                                                     %
+% Deep Learning Framework: PyTorch, Scikit-Learn                               %
+% Optimization: Genetic Algorithms (NSGA-II)                                   %
+% Language: Python                                                             %
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%-------------------------- DESIGN OF EXPERIMENT ------------------------------%
+%
+% Initial sampling (real_lhs, real_random, bin_lhs, bin_random)
+SAMPLING_METHOD = real_lhs
+%
+% Setting for population
+POPULATION_SIZE = 100
+%
+% Problem Benchmark (zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, osy, custom)
+PROBLEM = zdt1
+%
+%------------------------- OPTIMIZATION CONFIGURATION --------------------------%
+%
+% Optimization algorithm (nsga, nsga2, nsga3)
+OPTIMIZATION_ALGORITHM = nsga2
+%
+% Selection operator (random, tournament)
+SELECTION_OPERATOR = tournament
+%
+% Crossover operator (real_sbx, int_sbx, read_de, perm_ox, perm_erx)
+CROSSOVER_OPERATOR = real_sbx
+CROSSOVER_PROBABILITY = 0.9
+ETA_CROSSOVER = 15
+%
+% Mutation operator (none, real_pm, int_pm, bin_bit-flip, perm_inv)
+MUTATION_OPERATOR = real_pm
+ETA_MUTATION = 15
+%
+% Stopping criteria (n_gen|n_iter, n_eval, igd, time, x_tol, f_tol)
+TERMINATION = n_gen
+NUMBER_OF_GENERATION = 200
+%
+%----------------------- NEURAL NETWORK CONFIGURATION --------------------------%
+%
+% Number of epoch(s)
+N_EPOCH = 1000
+% 
+% Number of neurons in the hidden layer
+N_NEURON = 32
+%
+% Batch rate
+BATCHRATE = 5
+%
