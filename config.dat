@@ -5,9 +5,8 @@
 % Institution: Institute of Fluid Science, Tohoku University                   %
 % Date: 2/7/2021                                                               %
 % CFD Solver: SU2                                                              %
-% Mesh software: Pointwise                                                     %
-% Deep Learning Framework: PyTorch, Scikit-Learn                               %
-% Optimization: Genetic Algorithms (NSGA-II)                                   %
+% Deep Learning Framework: PyTorch                                             %
+% Optimization: Genetic Algorithms (Framework: pymoo)                          %
 % Language: Python                                                             %
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,16 +41,19 @@ ETA_MUTATION = 15
 %
 % Stopping criteria (n_gen|n_iter, n_eval, igd, time, x_tol, f_tol)
 TERMINATION = n_gen
-NUMBER_OF_GENERATION = 200
+NUMBER_OF_GENERATION = 100
 %
 %----------------------- NEURAL NETWORK CONFIGURATION --------------------------%
 %
 % Number of epoch(s)
-N_EPOCH = 1000
+N_EPOCH = 2000
 % 
 % Number of neurons in the hidden layer
-N_NEURON = 32
+N_NEURON = 128
 %
 % Batch rate
 BATCHRATE = 5
+%
+% Number of updates
+NO_OF_UPDATES = 50
 %

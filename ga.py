@@ -13,6 +13,8 @@ from pymoo.visualization.scatter import Scatter
 from pymoo.factory import get_problem, get_sampling, get_selection
 from pymoo.factory import get_crossover, get_mutation, get_termination
 
+import torch
+
 #Disable warning
 from pymoo.configuration import Configuration
 Configuration.show_compile_hint = False
@@ -35,6 +37,30 @@ class UserDefinedProblem(Problem):
 
 		out["F"] = np.column_stack([f1, f2])
 		out["G"] = np.column_stack([g1, g2])
+
+class TrainedModelProblem(Problem):
+	"""This is the trained neural net model"""
+	def __init__(self, problem_name, model):
+		"""Inheritance from Problem class"""
+		if problem_name == 'zdt1':
+			self.n_var = 30
+			self.n_obj = 2
+			self.n_constr = 0
+			self.xl = np.zeros(self.n_var)
+			self.xu = np.ones(self.n_var)
+			self.model = model
+		super().__init__(n_var=self.n_var,
+						 n_obj=self.n_obj,
+						 n_constr=self.n_constr,
+						 xl=self.xl, xu=self.xu)
+	
+	def _evaluate(self, X, out, *args, **kwargs):
+		"""Evaluation method"""
+		X_t = torch.from_numpy(X)
+		F_t = self.model(X_t.float())
+		F = F_t.detach().numpy()
+
+		out["F"] = np.column_stack([F])
 
 class ProblemBenchmark():
 	"""Instance for benchmarks"""
@@ -124,9 +150,3 @@ def do_optimization(problem, algorithm, termination,
 	optim = minimize(problem, algorithm, termination,
 		verbose=verbose, seed=seed)
 	return optim
-
-
-
-# plot = Scatter()
-# plot.add(res.F, color="red")
-# plot.show()
