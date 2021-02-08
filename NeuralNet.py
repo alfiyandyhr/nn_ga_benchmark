@@ -35,13 +35,19 @@ class NeuralNet(torch.nn.Module):
 		phi = self.lasthiddenlayer(h_relu)
 		return phi
 
-def train(model, N_Epoch):
+def train(model, N_Epoch, init):
 	"""Training routines"""
 	#Loading training data
-	x = np.genfromtxt('DATA/training/design_vars_init.dat',
-		skip_header=1, skip_footer=0, delimiter=' ')
-	y = np.genfromtxt('DATA/training/objs_constrs_init.dat',
-		skip_header=1, skip_footer=0, delimiter=' ')
+	if init:
+		x = np.genfromtxt('DATA/training/X_init.dat',
+			skip_header=1, skip_footer=0, delimiter=' ')
+		y = np.genfromtxt('DATA/training/OUT_init.dat',
+			skip_header=1, skip_footer=0, delimiter=' ')
+	else:
+		x = np.genfromtxt('DATA/training/X.dat',
+			skip_header=1, skip_footer=0, delimiter=' ')
+		y = np.genfromtxt('DATA/training/OUT.dat',
+			skip_header=1, skip_footer=0, delimiter=' ')
 
 	#Converting training data to pytorch tensors
 	x_t = torch.from_numpy(x)
@@ -55,8 +61,8 @@ def train(model, N_Epoch):
 	for t in range(N_Epoch):
 		y_pred = model(x_t.float())
 		loss = loss_fn(y_pred, y_t.float())
-		# if t % 100 == 99:
-		#     print(t, loss.item())
+		if t % 200 == 99:
+		    print(f'N_Epoch = {t}', f'Loss = {loss.item()}')
 		optimizer.zero_grad()
 		loss.backward()
 		optimizer.step()

@@ -23,7 +23,7 @@ config = load_vars()
 #Design of Experiment
 initial_sampling_method = config['SAMPLING_METHOD']
 pop_size = eval(config['POPULATION_SIZE'])
-problem = config['PROBLEM']
+problem_name = config['PROBLEM']
 
 #Optimization configuration
 algorithm_name = config['OPTIMIZATION_ALGORITHM']
@@ -40,3 +40,4 @@ n_gen = eval(config['NUMBER_OF_GENERATION'])
 N_Epoch = eval(config['N_EPOCH'])
 N_Neuron = eval(config['N_NEURON'])
 batchrate = eval(config['BATCHRATE'])
+number_of_updates = eval(config['NO_OF_UPDATES'])
