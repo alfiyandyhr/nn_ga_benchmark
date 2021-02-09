@@ -35,7 +35,7 @@ class NeuralNet(torch.nn.Module):
 		phi = self.lasthiddenlayer(h_relu)
 		return phi
 
-def train(model, N_Epoch, init):
+def train(model, N_Epoch, lr, init):
 	"""Training routines"""
 	#Loading training data
 	if init:
@@ -55,7 +55,7 @@ def train(model, N_Epoch, init):
 
 	#Defining loss functions and parameter optimizers
 	loss_fn = torch.nn.MSELoss(reduction='sum')
-	optimizer = torch.optim.Adam(model.parameters(),lr=2e-4)
+	optimizer = torch.optim.Adam(model.parameters(),lr=lr)
 
 	#Training
 	for t in range(N_Epoch):

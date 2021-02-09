@@ -39,5 +39,12 @@ n_gen = eval(config['NUMBER_OF_GENERATION'])
 #Neural Network configuration
 N_Epoch = eval(config['N_EPOCH'])
 N_Neuron = eval(config['N_NEURON'])
+lr = eval(config['LEARNING_RATE'])
 batchrate = eval(config['BATCHRATE'])
 number_of_updates = eval(config['NO_OF_UPDATES'])
+
+#Plot config
+pf_plot = eval(config['PLOT_PARETO_FRONT'].title())
+optim_plot = eval(config['PLOT_OPTIMAL_SOLUTIONS'].title())
+initial_samples_plot = eval(config['PLOT_INITIAL_SAMPLES'].title())
+

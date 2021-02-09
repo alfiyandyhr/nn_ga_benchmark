@@ -11,22 +11,20 @@ from NeuralNet import *
 import os
 #####################################################################################################
 
-#Create folders for storing data
-# os.makedirs('DATA')
-# os.makedirs('DATA/prediction')
-# os.makedirs('DATA/training')
-# os.makedirs('DATA/storage')
-
 print('------------------------------------------------------')
 print('--- NN based surrogate optimization coded by Alfi ----')
 print('------------------------------------------------------\n')
 print('Successfully loaded input data, now initializing...\n')
+
+#####################################################################################################
 
 #Defining problem
 problem_def = ProblemBenchmark(problem_name)
 problem = problem_def.get_problem()
 pareto_front = problem.pareto_front()
 print(f'The benchmark problem: {problem_name.upper()}\n')
+
+#####################################################################################################
 
 #Initial sampling
 initial_sampling_def = SamplingDefinition(initial_sampling_method)
@@ -36,6 +34,10 @@ InitialData = initial_sampling.do(problem, n_samples=pop_size, pop=None)
 
 #Evaluating initial samples (true eval)
 InitialEval = problem.evaluate(InitialData, return_values_of=['F'])
+InitialEval_G = problem.evaluate(InitialData, return_values_of=['G'])
+
+if InitialEval_G is not None:
+	InitialEval = np.concatenate((InitialEval, InitialEval_G), axis=1)
 
 np.savetxt('DATA/training/X_init.dat',
 	InitialData, delimiter=' ', newline='\n',
@@ -44,8 +46,10 @@ np.savetxt('DATA/training/X_init.dat',
 
 np.savetxt('DATA/training/OUT_init.dat',
 	InitialEval, delimiter=' ', newline='\n',
-	header='Row = sample point, column = objective and constraint',
+	header='Row = sample point, column = objective and constraint (if any)',
 	footer="")
+
+#####################################################################################################
 
 #Initial training for neural nets
 print('Feeding the training data to the neural net...\n\n')
@@ -53,14 +57,14 @@ Model = NeuralNet(D_in=problem.n_var,
 				  H=N_Neuron, D=N_Neuron,
 				  D_out=problem.n_obj+problem.n_constr)
 print('Performing initial training...\n')
-TrainedModel = train(model=Model, N_Epoch=1000, init=True)
+TrainedModel = train(model=Model, N_Epoch=N_Epoch, lr=lr, init=True)
 print('\nAn initial trained model is obtained!\n')
 print('--------------------------------------------------')
 TrainedModel_Problem = TrainedModelProblem(problem_name, TrainedModel)
 
-#Evolutionary computation routines on the Trained Model
+#####################################################################################################
 
-#Selecting genetic operators for EA setup
+#Evolutionary computation routines on the Trained Model
 selection_def = SelectionOperator(selection_operator_name)
 #selection = selection_def.get_selection()
 crossover_def = CrossoverOperator(crossover_operator_name)
@@ -88,6 +92,9 @@ optimal_solutions =  do_optimization(TrainedModel_Problem,
 print('Optimal solutions on the initial trained model is obtained!\n')
 print('--------------------------------------------------')
 
+# print(optimal_solutions.F)
+#####################################################################################################
+
 #Iterative trainings
 for update in range(number_of_updates-1):
 	#Saving best design variables (X_best) on every trained model
@@ -104,6 +111,11 @@ for update in range(number_of_updates-1):
 	#Evaluating X_best (true eval)
 	Eval_X_best = problem.evaluate(optimal_solutions.X,
 								   return_values_of=['F'])
+	Eval_X_best_G = problem.evaluate(optimal_solutions.X,
+							   	   return_values_of=['G'])
+	if Eval_X_best_G is not None:
+		Eval_X_best = np.concatenate((Eval_X_best, Eval_X_best_G), axis=1)
+
 
 	np.savetxt('DATA/training/OUT.dat',
 		Eval_X_best, delimiter=' ', newline='\n',
@@ -113,7 +125,7 @@ for update in range(number_of_updates-1):
 	#Training neural nets
 	Model = TrainedModel
 	print(f'Performing neural nets training, training={update+2}\n')
-	TrainedModel = train(model=Model, N_Epoch=1000, init=False)
+	TrainedModel = train(model=Model, N_Epoch=N_Epoch, lr=lr, init=False)
 	TrainedModel_Problem = TrainedModelProblem(problem_name, TrainedModel)
 
 	#Optimal solutions
@@ -127,16 +139,25 @@ for update in range(number_of_updates-1):
 
 print(f'NN based surrogate optimization is DONE! True eval = {100*number_of_updates}\n')
 
-#Evaluating X_best (true eval)
+#Evaluating the last X_best (true eval)
 Eval_X_best = problem.evaluate(optimal_solutions.X,
 							   return_values_of=['F'])
 
-plt.plot(InitialEval[:,0], InitialEval[:,1], 'bo', label='Initial samples')
-plt.plot(pareto_front[:,0],pareto_front[:,1],'k-', label='Pareto front')
-# plt.plot(optimal_solutions.F[:,0],optimal_solutions.F[:,1],'ro')
-plt.plot(Eval_X_best[:,0], Eval_X_best[:,1], 'ro', label='Optimal solutions')
+#####################################################################################################
+
+#Plot
+
+if pf_plot:
+	plt.plot(pareto_front[:,0],pareto_front[:,1],'k-', label='Pareto front')
+if initial_samples_plot:
+	plt.plot(InitialEval[:,0], InitialEval[:,1], 'bo', label='Initial samples')
+if optim_plot:
+	plt.plot(Eval_X_best[:,0], Eval_X_best[:,1], 'ro', label='Optimal solutions')
+# plt.plot(optimal_solutions.F[:,0],optimal_solutions.F[:,1],'ro') 
 plt.title(f'Objective functions space of {problem_name.upper()}')
 plt.xlabel("F1")
 plt.ylabel("F2")
 plt.legend(loc="upper right")
 plt.show()
+
+#####################################################################################################
