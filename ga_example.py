@@ -2,8 +2,9 @@ from pymoo.algorithms.nsga2 import NSGA2
 from pymoo.factory import get_problem
 from pymoo.optimize import minimize
 from pymoo.visualization.scatter import Scatter
+from pymoo.factory import get_performance_indicator
 
-problem = get_problem("zdt1")
+problem = get_problem("osy")
 
 algorithm = NSGA2(pop_size=100)
 

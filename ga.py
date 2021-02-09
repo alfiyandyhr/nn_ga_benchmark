@@ -42,13 +42,26 @@ class TrainedModelProblem(Problem):
 	"""This is the trained neural net model"""
 	def __init__(self, problem_name, model):
 		"""Inheritance from Problem class"""
-		if problem_name == 'zdt1':
-			self.n_var = 30
+		#Zitzler-Deb-Thiele (ZDT) benchmark
+		if problem_name in ['zdt1','zdt2','zdt3','zdt4','zdt5','zdt6']:
+			if problem_name in ['zdt4','zdt6']:
+				self.n_var = 10
+			elif problem_name == 'zdt5':
+				self.n_var = 80
+			else:
+				self.n_var = 30
 			self.n_obj = 2
 			self.n_constr = 0
 			self.xl = np.zeros(self.n_var)
 			self.xu = np.ones(self.n_var)
-			self.model = model
+		#OSY benchmark by Osyczka and Kundu
+		elif problem_name == 'osy':
+			self.n_var = 6
+			self.n_obj = 2
+			self.n_constr = 6
+			self.xl = [0, 0, 1, 0, 1, 0]
+			self.xu = [10, 10, 5, 6, 5, 10]
+		self.model = model
 		super().__init__(n_var=self.n_var,
 						 n_obj=self.n_obj,
 						 n_constr=self.n_constr,
@@ -57,10 +70,14 @@ class TrainedModelProblem(Problem):
 	def _evaluate(self, X, out, *args, **kwargs):
 		"""Evaluation method"""
 		X_t = torch.from_numpy(X)
-		F_t = self.model(X_t.float())
-		F = F_t.detach().numpy()
+		out_t = self.model(X_t.float())
+		out_np = out_t.detach().numpy()
+
+		F = out_np[:, 0:self.n_obj]
+		G = out_np[:, self.n_obj:(self.n_obj+self.n_constr)]
 
 		out["F"] = np.column_stack([F])
+		out["G"] = np.column_stack([G])
 
 class ProblemBenchmark():
 	"""Instance for benchmarks"""

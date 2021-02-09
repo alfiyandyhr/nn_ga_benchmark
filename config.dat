@@ -3,8 +3,7 @@
 % Neural-Network-based Surrogate Optimization of Benchmark Test Problems       %
 % Author: Alfiyandy Hariansyah                                                 %
 % Institution: Institute of Fluid Science, Tohoku University                   %
-% Date: 2/7/2021                                                               %
-% CFD Solver: SU2                                                              %
+% Date: 2/9/2021                                                               %
 % Deep Learning Framework: PyTorch                                             %
 % Optimization: Genetic Algorithms (Framework: pymoo)                          %
 % Language: Python                                                             %
@@ -46,14 +45,24 @@ NUMBER_OF_GENERATION = 100
 %----------------------- NEURAL NETWORK CONFIGURATION --------------------------%
 %
 % Number of epoch(s)
-N_EPOCH = 2000
+N_EPOCH = 1000
 % 
 % Number of neurons in the hidden layer
-N_NEURON = 128
+N_NEURON = 100
+%
+% Learning rate
+LEARNING_RATE = 2E-4
 %
 % Batch rate
 BATCHRATE = 5
 %
 % Number of updates
-NO_OF_UPDATES = 50
+NO_OF_UPDATES = 1
+%
+%---------------------------- PLOT CONFIGURATION -------------------------------%
+%
+% What to plot? (TRUE, FALSE)
+PLOT_PARETO_FRONT = TRUE
+PLOT_OPTIMAL_SOLUTIONS = TRUE
+PLOT_INITIAL_SAMPLES = FALSE
 %
