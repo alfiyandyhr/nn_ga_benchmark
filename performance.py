@@ -8,11 +8,14 @@ def calc_hv(pop, ref):
 	"""
 	This will calculate Hypervolumes from the input array
 
-	Input: The population at a given generation
+	Input: The population at a given generation(numpy)
 	
-	Output: HV value at a given generation
+	Output: HV value at a given generation(float)
 
 	"""
+	#Sorting the population properly
+	pop = pop[pop[:,0].argsort()]
+
 	volume = 0.0
 
 	for indiv in range(len(pop)):
