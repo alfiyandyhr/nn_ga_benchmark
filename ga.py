@@ -1,7 +1,7 @@
 #Genetic Algorithms using pymoo
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#2/7/2021
+#2/8/2021
 #####################################################################################################
 import numpy as np
 
@@ -9,12 +9,12 @@ from pymoo.model.problem import Problem
 from pymoo.model.sampling import Sampling
 from pymoo.algorithms.nsga2 import NSGA2
 from pymoo.optimize import minimize
-from pymoo.visualization.scatter import Scatter
 from pymoo.factory import get_problem, get_sampling, get_selection
 from pymoo.factory import get_crossover, get_mutation, get_termination
+from pymoo.visualization.scatter import Scatter
 
-import torch
-
+from NeuralNet import calculate
+#####################################################################################################
 #Disable warning
 from pymoo.configuration import Configuration
 Configuration.show_compile_hint = False
@@ -40,27 +40,14 @@ class UserDefinedProblem(Problem):
 
 class TrainedModelProblem(Problem):
 	"""This is the trained neural net model"""
-	def __init__(self, problem_name, model):
+	def __init__(self, problem, model):
 		"""Inheritance from Problem class"""
-		#Zitzler-Deb-Thiele (ZDT) benchmark
-		if problem_name in ['zdt1','zdt2','zdt3','zdt4','zdt5','zdt6']:
-			if problem_name in ['zdt4','zdt6']:
-				self.n_var = 10
-			elif problem_name == 'zdt5':
-				self.n_var = 80
-			else:
-				self.n_var = 30
-			self.n_obj = 2
-			self.n_constr = 0
-			self.xl = np.zeros(self.n_var)
-			self.xu = np.ones(self.n_var)
-		#OSY benchmark by Osyczka and Kundu
-		elif problem_name == 'osy':
-			self.n_var = 6
-			self.n_obj = 2
-			self.n_constr = 6
-			self.xl = [0, 0, 1, 0, 1, 0]
-			self.xu = [10, 10, 5, 6, 5, 10]
+		self.n_var = problem.n_var
+		self.n_obj = problem.n_obj
+		self.n_constr = problem.n_constr
+		self.xl = problem.xl
+		self.xu = problem.xu
+		self.problem = problem
 		self.model = model
 		super().__init__(n_var=self.n_var,
 						 n_obj=self.n_obj,
@@ -69,12 +56,12 @@ class TrainedModelProblem(Problem):
 	
 	def _evaluate(self, X, out, *args, **kwargs):
 		"""Evaluation method"""
-		X_t = torch.from_numpy(X)
-		out_t = self.model(X_t.float())
-		out_np = out_t.detach().numpy()
+		OUT = calculate(X=X,
+					    problem=self.problem,
+					    model=self.model)
 
-		F = out_np[:, 0:self.n_obj]
-		G = out_np[:, self.n_obj:(self.n_obj+self.n_constr)]
+		F = OUT[:, 0:self.n_obj]
+		G = OUT[:, self.n_obj:(self.n_obj+self.n_constr)]
 
 		out["F"] = np.column_stack([F])
 		out["G"] = np.column_stack([G])
@@ -162,8 +149,9 @@ class StoppingCriteria():
 		return termination
 
 def do_optimization(problem, algorithm, termination,
-	verbose=False, seed=1):
+	verbose=False, seed=1, return_least_infeasible=True):
 	"""Conduct optimization process and return optimized solutions"""
 	optim = minimize(problem, algorithm, termination,
-		verbose=verbose, seed=seed)
+					 verbose=verbose, seed=seed,
+					 return_least_infeasible=return_least_infeasible)
 	return optim
