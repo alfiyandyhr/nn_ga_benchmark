@@ -107,14 +107,14 @@ def train(problem, model, N_Epoch, lr, batchrate):
 	X_over    = np.copy(X_nodup)
 	OUT_over  = np.copy(OUT_nodup)
 	
-	# for i in range(N_cluster):
-	# 	idx = np.where(cluster_label!=i)[0]
-	# 	X_cluster   = np.delete(X_nodup,   idx, 0)
-	# 	OUT_cluster = np.delete(OUT_nodup, idx, 0)
+	for i in range(N_cluster):
+		idx = np.where(cluster_label!=i)[0]
+		X_cluster   = np.delete(X_nodup,   idx, 0)
+		OUT_cluster = np.delete(OUT_nodup, idx, 0)
 		
-	# 	for j in range(over_coef[i]-1):
-	# 		X_over   = np.vstack((X_over,   X_cluster))
-	# 		X_over = np.vstack((OUT_over, OUT_cluster))
+		for j in range(over_coef[i]-1):
+			X_over   = np.vstack((X_over,   X_cluster))
+			OUT_over = np.vstack((OUT_over, OUT_cluster))
 
 
 	"""
@@ -164,16 +164,15 @@ def train(problem, model, N_Epoch, lr, batchrate):
 			optimizer.zero_grad()
 			OUT_pred_train = model(X_train[perm[i:i+batchsize]].float())
 			train_loss = loss_fn(OUT_pred_train, OUT_train[perm[i:i+batchsize]].float())
-			# print(f'i = {i}', f'Loss = {train_loss.item()}')
 			train_loss.backward()
 			optimizer.step()
 			sum_train_loss += train_loss.data*batchsize
-		# if epoch % 10 == 0:
-		    # print(f'N_Epoch = {epoch}', f'Loss = {train_loss.item()}')
 		train_lost[epoch] = sum_train_loss/N_train
+		if epoch % 10 == 0:
+		    print(f'N_Epoch = {epoch}', f'Loss = {train_loss.item()}')
 
 
-		model = model.eval()
+		model.eval()
 		OUT_pred_test = model(X_test[0:N_test].float())
 		test_loss = loss_fn(OUT_pred_test, OUT_test[0:N_test].float())
 

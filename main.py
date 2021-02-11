@@ -6,7 +6,8 @@
 from LoadVars import *
 from ga import *
 from NeuralNet import *
-from performance import *
+from performance import calc_hv
+from SaveOutput import save
 import matplotlib.pyplot as plt
 
 import os
@@ -30,7 +31,7 @@ print(f'The benchmark problem: {problem_name.upper()}\n')
 initial_sampling = define_sampling(initial_sampling_method_name)
 print(f'Performing initial sampling: {initial_sampling_method_name.upper()}\n')
 InitialData = initial_sampling.do(problem, n_samples=pop_size, pop=None)
-parent_pop = InitialData
+# parent_pop = np.copy(InitialData)
 
 #Evaluating initial samples (true eval)
 InitialEval = problem.evaluate(InitialData, return_values_of=['F'])
@@ -39,13 +40,11 @@ InitialEval_G = problem.evaluate(InitialData, return_values_of=['G'])
 if InitialEval_G is not None:
 	InitialEval = np.concatenate((InitialEval, InitialEval_G), axis=1)
 
-np.savetxt('DATA/training/X.dat',
-	InitialData, delimiter=' ', newline='\n',
-	footer="")
-
-np.savetxt('DATA/training/OUT.dat',
-	InitialEval, delimiter=' ', newline='\n',
-	footer="")
+save('OUTPUT/initial_pop.dat', InitialData)
+save('OUTPUT/calc_pop.dat', InitialEval)
+save('OUTPUT/all_pop.dat', InitialData)
+save('DATA/training/X.dat', InitialData)
+save('DATA/training/OUT.dat', InitialEval)
 
 #Initial performance
 HV = [0]
@@ -98,7 +97,8 @@ optimal_solutions =  do_optimization(TrainedModel_Problem,
 									 algorithm, stopping_criteria,
 									 verbose=True, seed=1,
 									 return_least_infeasible=True)
-print('Optimal solutions on the initial trained model is obtained!\n')
+print('--------------------------------------------------')
+print('\nOptimal solutions on the initial trained model is obtained!\n')
 print('--------------------------------------------------')
 
 #####################################################################################################
@@ -107,15 +107,14 @@ print('--------------------------------------------------')
 for update in range(number_of_updates):
 	#Saving best design variables (X_best) on every trained model
 	print(f'Updating the training data to the neural net, update={update+1}\n\n')
-	np.savetxt('DATA/prediction/X_best.dat',
-		optimal_solutions.X, delimiter=' ', newline='\n',
-		header='Row = sample point, column = design vars',
-		footer="")
+	with open('DATA/prediction/X_best.dat','a') as f:
+		save(f, optimal_solutions.X, header = f'#Generation = {update+2}')
+
+	with open('OUTPUT/all_pop.dat', 'a') as f:
+		save(f, optimal_solutions.X, header = f'#Generation = {update+2}') 
 	
 	with open('DATA/training/X.dat','a') as f:
-		np.savetxt(f, optimal_solutions.X,
-			delimiter=' ', newline='\n',
-			footer="")
+		save(f, optimal_solutions.X)
 	
 	#Evaluating X_best (true eval)
 	Eval_X_best = problem.evaluate(optimal_solutions.X,
@@ -125,10 +124,11 @@ for update in range(number_of_updates):
 	if Eval_X_best_G is not None:
 		Eval_X_best = np.concatenate((Eval_X_best, Eval_X_best_G), axis=1)
 
+	with open('OUTPUT/calc_pop.dat', 'a') as f:
+		save(f, Eval_X_best, header = f'#Generation = {update+2}') 
+
 	with open('DATA/training/OUT.dat', 'a') as f:
-		np.savetxt(f, Eval_X_best,
-			delimiter=' ', newline='\n',
-			footer="")
+		save(f, Eval_X_best)
 
 	#Performance measurement for each iteration
 	HV += [calc_hv(Eval_X_best[:,range(problem.n_obj)], ref=hv_ref)]
@@ -161,6 +161,10 @@ print(f'NN based surrogate optimization is DONE! True eval = {100*(number_of_upd
 Eval_X_best = problem.evaluate(optimal_solutions.X,
 							   return_values_of=['F'])
 
+save('OUTPUT/final_pop.dat', optimal_solutions.X)
+save('OUTPUT/final_calc_pop.dat', optimal_solutions.X)
+with open('OUTPUT/calc_pop.dat', 'a') as f:
+	save(f, Eval_X_best, header = f'#Generation = {number_of_updates+2}') 
 
 #Performance measurement for the last solutions
 HV += [calc_hv(Eval_X_best[:,range(problem.n_obj)], ref=hv_ref)]
@@ -171,7 +175,7 @@ HV_pareto = calc_hv(problem.pareto_front(), ref=hv_ref)
 #True evaluation counters
 true_eval = [0]
 for update in range(number_of_updates+2):
-	true_eval += [n_gen*(update+1)]
+	true_eval += [pop_size*(update+1)]
 
 #####################################################################################################
 
@@ -192,7 +196,7 @@ if pf_plot or initial_samples_plot or optim_plot:
 
 if hv_plot:
 	plt.plot(true_eval, HV)
-	plt.hlines(HV_pareto, 0, 2*len(true_eval)*100, colors='k', label='Pareto')
+	plt.hlines(HV_pareto, 0, len(true_eval)*pop_size, colors='k', label='Pareto')
 	plt.title(f'HV History of {problem_name.upper()}')
 	plt.xlabel("Number of true evaluations")
 	plt.ylabel("HV value")
