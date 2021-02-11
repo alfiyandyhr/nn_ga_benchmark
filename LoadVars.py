@@ -21,7 +21,7 @@ config = load_vars()
 
 """Assigning variables"""
 #Design of Experiment
-initial_sampling_method = config['SAMPLING_METHOD']
+initial_sampling_method_name = config['SAMPLING_METHOD']
 pop_size = eval(config['POPULATION_SIZE'])
 problem_name = config['PROBLEM']
 
@@ -49,3 +49,9 @@ optim_plot = eval(config['PLOT_OPTIMAL_SOLUTIONS'].title())
 initial_samples_plot = eval(config['PLOT_INITIAL_SAMPLES'].title())
 hv_plot = eval(config['PLOT_HV_HISTORY'].title())
 igd_plot = eval(config['PLOT_IGD_HISTORY'].title())
+
+if problem_name == 'osy':
+	hv_ref = [-18.8, 83.2]
+
+if problem_name in ['zdt1', 'zdt2', 'zdt3', 'zdt4', 'zdt5', 'zdt6']:
+	hv_ref = [1.1, 1.1]

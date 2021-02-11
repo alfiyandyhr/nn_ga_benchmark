@@ -20,18 +20,17 @@ print('Successfully loaded input data, now initializing...\n')
 #####################################################################################################
 
 #Defining problem
-problem_def = ProblemBenchmark(problem_name)
-problem = problem_def.get_problem()
+problem = define_problem(problem_name)
 pareto_front = problem.pareto_front()
 print(f'The benchmark problem: {problem_name.upper()}\n')
 
 #####################################################################################################
 
 #Initial sampling
-initial_sampling_def = SamplingDefinition(initial_sampling_method)
-initial_sampling = initial_sampling_def.get_sampling()
-print(f'Performing initial sampling: {initial_sampling_def.name.upper()}\n')
+initial_sampling = define_sampling(initial_sampling_method_name)
+print(f'Performing initial sampling: {initial_sampling_method_name.upper()}\n')
 InitialData = initial_sampling.do(problem, n_samples=pop_size, pop=None)
+parent_pop = InitialData
 
 #Evaluating initial samples (true eval)
 InitialEval = problem.evaluate(InitialData, return_values_of=['F'])
@@ -50,8 +49,7 @@ np.savetxt('DATA/training/OUT.dat',
 
 #Initial performance
 HV = [0]
-InitialEval.sort(0)
-HV += [calc_hv(InitialEval[:,range(problem.n_obj)], ref=[1.1,1.1])]
+HV += [calc_hv(InitialEval[:,range(problem.n_obj)], ref=hv_ref)]
 
 #####################################################################################################
 
@@ -78,12 +76,9 @@ TrainedModel_Problem = TrainedModelProblem(problem, TrainedModel)
 
 #Evolutionary computation routines on the Trained Model
 
-selection_def = SelectionOperator(selection_operator_name)
-#selection = selection_def.get_selection()
-crossover_def = CrossoverOperator(crossover_operator_name)
-crossover = crossover_def.get_crossover(prob=prob_c, eta=eta_c)
-mutation_def = MutationOperator(mutation_operator_name)
-mutation = mutation_def.get_mutation(eta=eta_m)
+selection = define_selection(selection_operator_name)
+crossover = define_crossover(crossover_operator_name, prob=prob_c, eta=eta_c)
+mutation = define_mutation(mutation_operator_name, eta=eta_m)
 
 #EA settings
 EA = EvolutionaryAlgorithm(algorithm_name)
@@ -95,13 +90,13 @@ algorithm = EA.setup(pop_size=pop_size,
 
 #Stopping criteria
 stopping_criteria_def = StoppingCriteria(termination_name)
-stopping_criteria = stopping_criteria_def.get_termination(n_gen=n_gen)
+stopping_criteria = stopping_criteria_def.set_termination(n_gen=n_gen)
 
 #Obtaining optimal solutions on the initial trained model
 print(f'Performing optimization on the initial trained model using {algorithm_name.upper()}\n')
 optimal_solutions =  do_optimization(TrainedModel_Problem,
 									 algorithm, stopping_criteria,
-									 verbose=False, seed=1,
+									 verbose=True, seed=1,
 									 return_least_infeasible=True)
 print('Optimal solutions on the initial trained model is obtained!\n')
 print('--------------------------------------------------')
@@ -136,18 +131,13 @@ for update in range(number_of_updates):
 			footer="")
 
 	#Performance measurement for each iteration
-	Eval_X_best.sort(axis=0)
-	HV += [calc_hv(Eval_X_best[:,range(problem.n_obj)], ref=[1.1,1.1])]
+	HV += [calc_hv(Eval_X_best[:,range(problem.n_obj)], ref=hv_ref)]
 
 	#Training neural nets
-	Model = NeuralNet(D_in=problem.n_var,
-				      H=N_Neuron, D=N_Neuron,
-				      D_out=problem.n_obj+problem.n_constr)
-
 	print(f'Performing neural nets training, training={update+2}\n')
 
 	TrainedModel = train(problem=problem,
-						 model=Model,
+						 model=TrainedModel,
 						 N_Epoch=N_Epoch,
 						 lr=lr,
 						 batchrate=batchrate)
@@ -159,7 +149,7 @@ for update in range(number_of_updates):
 	print(f'Performing optimization on the trained model using {algorithm_name.upper()}\n')
 	optimal_solutions =  do_optimization(TrainedModel_Problem,
 										 algorithm, stopping_criteria,
-										 verbose=False, seed=1,
+										 verbose=True, seed=1,
 										 return_least_infeasible=True)
 	print('--------------------------------------------------\n')
 	print('Optimal solutions on the trained model is obtained!\n')
@@ -173,10 +163,10 @@ Eval_X_best = problem.evaluate(optimal_solutions.X,
 
 
 #Performance measurement for the last solutions
-HV += [calc_hv(Eval_X_best[:,range(problem.n_obj)], ref=[1.1,1.1])]
+HV += [calc_hv(Eval_X_best[:,range(problem.n_obj)], ref=hv_ref)]
 
 #Ideal performance (pareto front)
-HV_pareto = calc_hv(problem.pareto_front(), ref=[1.1,1.1])
+HV_pareto = calc_hv(problem.pareto_front(), ref=hv_ref)
 
 #True evaluation counters
 true_eval = [0]

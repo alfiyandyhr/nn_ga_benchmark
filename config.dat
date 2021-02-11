@@ -36,11 +36,11 @@ ETA_CROSSOVER = 15
 %
 % Mutation operator (none, real_pm, int_pm, bin_bit-flip, perm_inv)
 MUTATION_OPERATOR = real_pm
-ETA_MUTATION = 15
+ETA_MUTATION = 20
 %
 % Stopping criteria (n_gen|n_iter, n_eval, igd, time, x_tol, f_tol)
 TERMINATION = n_gen
-NUMBER_OF_GENERATION = 100
+NUMBER_OF_GENERATION = 200
 %
 %----------------------- NEURAL NETWORK CONFIGURATION --------------------------%
 %
@@ -56,15 +56,15 @@ LEARNING_RATE = 2E-4
 % Batch rate
 BATCHRATE = 5
 %
-% Number of updates
-NO_OF_UPDATES = 2
+% Number of updates (initial training is not counted)
+NO_OF_UPDATES = 20
 %
 %---------------------------- PLOT CONFIGURATION -------------------------------%
 %
 % What to plot? (TRUE, FALSE)
 PLOT_PARETO_FRONT = TRUE
 PLOT_OPTIMAL_SOLUTIONS = TRUE
-PLOT_INITIAL_SAMPLES = FALSE
+PLOT_INITIAL_SAMPLES = TRUE
 PLOT_HV_HISTORY = TRUE
 PLOT_IGD_HISTORY = FALSE
 %

@@ -61,21 +61,17 @@ class TrainedModelProblem(Problem):
 					    model=self.model)
 
 		F = OUT[:, 0:self.n_obj]
-		G = OUT[:, self.n_obj:(self.n_obj+self.n_constr)]
+		if self.problem.name() == 'OSY':
+			G = -1.0* OUT[:, self.n_obj:(self.n_obj+self.n_constr)]
+		else:
+			G = OUT[:, self.n_obj:(self.n_obj+self.n_constr)]
 
 		out["F"] = np.column_stack([F])
 		out["G"] = np.column_stack([G])
 
-class ProblemBenchmark():
-	"""Instance for benchmarks"""
-	def __init__(self, name):
-		"""Name of the benchmark"""
-		self.name = name
-
-	def get_problem(self):
-		"""Returning the python object"""
-		problem = get_problem(self.name)
-		return problem
+def define_problem(name):
+		"""Returning the python object of the benchmark problem"""
+		return get_problem(name)
 
 class EvolutionaryAlgorithm():
 	"""Instance for the crossover operator"""
@@ -96,54 +92,30 @@ class EvolutionaryAlgorithm():
 
 		return algorithm
 
-class SamplingDefinition():
-	"""Instance for the sampling"""
-	def __init__(self, name):
-		"""Name of the sampling method"""
-		self.name = name
-	def get_sampling(self):
-		"""Returning the python object"""	
-		sampling_method = get_sampling(self.name)
-		return sampling_method
+def define_sampling(name):
+		"""Returning the python object of the initial sampling method"""	
+		return get_sampling(name)
 
-class SelectionOperator():
-	"""Instance for the selection operator"""
-	def __init__(self, name):
-		"""Name of the selection operator"""
-		self.name = name
-	def get_selection(self):
-		"""Returning the python object"""	
-		if self.name == 'tournament':
-			selection = get_selection(self.name,
-				func_comp='real_tournament')
+def define_selection(name):
+		"""Returning the python object of selection operator"""	
+		if name == 'tournament':
+			selection = get_selection(name, func_comp='real_tournament')
 		return selection
 
-class CrossoverOperator():
-	"""Instance for the crossover operator"""
-	def __init__(self, name):
-		"""Name of the crossover operator"""
-		self.name = name
-	def get_crossover(self, prob, eta):
-		"""Returning the python object"""	
-		crossover = get_crossover(self.name, prob=prob, eta=eta)
-		return crossover
+def define_crossover(name, prob, eta):
+		"""Returning the python of the crossover operator"""	
+		return get_crossover(name, prob=prob, eta=eta)
 
-class MutationOperator():
-	"""Instance for the mutation operator"""
-	def __init__(self, name):
-		"""Name of the mutation operator"""
-		self.name = name
-	def get_mutation(self, eta):
-		"""Returning the python object"""	
-		mutation = get_mutation(self.name, eta=eta)
-		return mutation
+def define_mutation(name, eta):
+		"""Returning the python object of the mutation operator"""	
+		return get_mutation(name, eta=eta)
 
 class StoppingCriteria():
 	"""Instance for the termination"""
 	def __init__(self, name):
 		"""Name of the stopping criteria"""
 		self.name = name
-	def get_termination(self, n_gen):
+	def set_termination(self, n_gen):
 		"""Returning the python object"""	
 		termination = get_termination(self.name, n_gen)
 		return termination

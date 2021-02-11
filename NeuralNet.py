@@ -5,6 +5,7 @@
 #####################################################################################################
 import torch
 import numpy as np
+from DataProcess import normalize, denormalize, remove_duplicates
 from sklearn.cluster import KMeans
 
 class NeuralNet(torch.nn.Module):
@@ -45,38 +46,17 @@ def train(problem, model, N_Epoch, lr, batchrate):
 		skip_header=0, skip_footer=0, delimiter=' ')
 
 	#Normalization of input and output
-	n_rows_X, n_cols_X = X.shape
-	n_rows_OUT, n_cols_OUT = OUT.shape
+	OUT_max = np.amax(OUT, axis=0)
+	OUT_min = np.amin(OUT, axis=0)
 
-	for row in range(n_rows_X):
-		X[row] = (X[row]-problem.xl)/(problem.xu-problem.xl)
-
-	for row in range(n_rows_OUT):
-		for col in range(n_cols_OUT):
-			OUT_max = np.max(OUT[:,col])
-			OUT_min = np.min(OUT[:,col])
-			OUT[row,col] = (OUT[row,col]-OUT_min)/(OUT_max-OUT_min)
+	X = normalize(X, problem.xu, problem.xl, axis=0)
+	OUT = normalize(OUT, OUT_max, OUT_min, axis=1)
 
 	"""
 	Remove duplicates from training data
 	Duplicates of training data might add weights to them
 	"""
-	X_nodup   = np.copy(X)
-	OUT_nodup = np.copy(OUT)
-	
-	i = 0
-	while 1:
-		dist = np.sqrt((np.sum(np.power((X_nodup-X_nodup[i,:]), 2.0), axis=1))/problem.n_var)
-		dist[i] = 1.0
-		
-		idx = np.where(dist<0.001)[0]
-		X_nodup   = np.delete(X_nodup,   idx, 0)
-		OUT_nodup = np.delete(OUT_nodup, idx, 0)
-		
-		if len(X_nodup) <= i+1:
-			break
-		else:
-			i = i+1
+	X_nodup, OUT_nodup = remove_duplicates(X, OUT, problem.n_var)
 
 	"""
 	Gap statistics
@@ -230,32 +210,27 @@ def calculate(X, problem, model):
 
 	"""
 	#Converting to tensor
-	X_t = torch.from_numpy(X)
-	X_t_max = torch.from_numpy(problem.xu)
-	X_t_min = torch.from_numpy(problem.xl)
+	"""
+	no need to convert problem.xu and problem.xl into tensors
+	because they are automatically converted by pytorch when
+	operations between tensors and numpy arrays happen
+	"""
+	X = torch.from_numpy(X)
 
 	#Normalization of input
-	n_rows, n_cols = X_t.shape
-	
-	for row in range(n_rows):
-		X_t[row] = (X_t[row]-X_t_min)/(X_t_max-X_t_min)
+	X = normalize(X, problem.xu, problem.xl, axis=0)
 
 	#Trained model produces output
-	out_t = model(X_t.float())
+	OUT = model(X.float())
 
 	#Denormalization of output
-	n_rows, n_cols = out_t.shape
 
-	for row in range(n_rows):
-		for col in range(n_cols):
-			out_t_max = torch.max(out_t[:,col])
-			out_t_min = torch.min(out_t[:,col])
-			out_t[row,col] = (out_t_max-out_t_min) * out_t[row,col] + out_t_min
+	OUT_max = torch.amax(OUT, axis=0)
+	OUT_min = torch.amin(OUT, axis=0)
 
-	#Converting to numpy from tensor
-	out = out_t.detach().numpy()
+	OUT = denormalize(OUT, OUT_max, OUT_min, axis=1)
 
-	return out
+	return OUT.detach().numpy()
 
 
 
