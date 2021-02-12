@@ -45,7 +45,7 @@ number_of_updates = eval(config['NO_OF_UPDATES'])
 
 #Plot config
 pf_plot = eval(config['PLOT_PARETO_FRONT'].title())
-optim_plot = eval(config['PLOT_OPTIMAL_SOLUTIONS'].title())
+best_pop_plot = eval(config['PLOT_BEST_POPULATION'].title())
 initial_samples_plot = eval(config['PLOT_INITIAL_SAMPLES'].title())
 hv_plot = eval(config['PLOT_HV_HISTORY'].title())
 igd_plot = eval(config['PLOT_IGD_HISTORY'].title())

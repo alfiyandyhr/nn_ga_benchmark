@@ -45,8 +45,6 @@ def train(problem, model, N_Epoch, lr, batchrate):
 	OUT = np.genfromtxt('DATA/training/OUT.dat',
 		skip_header=0, skip_footer=0, delimiter=' ')
 
-	print('Processing the data... please wait :)\n')
-
 	#Normalization of input and output
 	OUT_max = np.amax(OUT, axis=0)
 	OUT_min = np.amin(OUT, axis=0)

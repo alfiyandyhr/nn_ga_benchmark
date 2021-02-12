@@ -5,18 +5,18 @@ from pymoo.visualization.scatter import Scatter
 from pymoo.factory import get_performance_indicator
 from pymoo.model.survival import Survival
 
-from performance import *
+from performance import calc_hv
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-problem = get_problem("osy")
+problem = get_problem("zdt1")
 
 algorithm = NSGA2(pop_size=100)
 
 res = minimize(problem,
                algorithm,
-               ('n_gen', 100),
+               ('n_gen', 250),
                seed=1,
                save_history=True,
                verbose=False)
@@ -50,12 +50,12 @@ res = minimize(problem,
 # plt.show()
 # print(problem.name())
 
-# plot = Scatter()
-# plot.add(problem.pareto_front(), plot_type="line", color="black", alpha=0.7)
-# plot.add(res.F, color="red")
-# plot.show()
+plot = Scatter()
+plot.add(problem.pareto_front(), plot_type="line", color="black", alpha=0.7)
+plot.add(res.F, color="red")
+plot.show()
 
-class NonDominatedSorting(Survival):
+# class NonDominatedSorting(Survival):
 
-	def __init__(self):
-		super(fill_nds, self)
+# 	def __init__(self):
+# 		super(fill_nds, self)

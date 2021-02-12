@@ -40,14 +40,14 @@ class UserDefinedProblem(Problem):
 
 class TrainedModelProblem(Problem):
 	"""This is the trained neural net model"""
-	def __init__(self, problem, model):
+	def __init__(self, problems, model):
 		"""Inheritance from Problem class"""
-		self.n_var = problem.n_var
-		self.n_obj = problem.n_obj
-		self.n_constr = problem.n_constr
-		self.xl = problem.xl
-		self.xu = problem.xu
-		self.problem = problem
+		self.n_var = problems.n_var
+		self.n_obj = problems.n_obj
+		self.n_constr = problems.n_constr
+		self.xl = problems.xl
+		self.xu = problems.xu
+		self.problems = problems
 		self.model = model
 		super().__init__(n_var=self.n_var,
 						 n_obj=self.n_obj,
@@ -57,14 +57,11 @@ class TrainedModelProblem(Problem):
 	def _evaluate(self, X, out, *args, **kwargs):
 		"""Evaluation method"""
 		OUT = calculate(X=X,
-					    problem=self.problem,
+					    problem=self.problems,
 					    model=self.model)
 
 		F = OUT[:, 0:self.n_obj]
-		if self.problem.name() == 'OSY':
-			G = -1.0* OUT[:, self.n_obj:(self.n_obj+self.n_constr)]
-		else:
-			G = OUT[:, self.n_obj:(self.n_obj+self.n_constr)]
+		G = OUT[:, self.n_obj:(self.n_obj+self.n_constr)]
 
 		out["F"] = np.column_stack([F])
 		out["G"] = np.column_stack([G])

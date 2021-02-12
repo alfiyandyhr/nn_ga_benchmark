@@ -1,14 +1,15 @@
 #NN-based surrogate optimization for benchmark problems
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#2/10/2021
+#2/12/2021
 #####################################################################################################
 from LoadVars import *
 from ga import *
-from NeuralNet import *
+from NeuralNet import NeuralNet, train, calculate
 from performance import calc_hv
 from SaveOutput import save
 import matplotlib.pyplot as plt
+import torch
 
 import os
 #####################################################################################################
@@ -23,6 +24,7 @@ print('Successfully loaded input data, now initializing...\n')
 #Defining problem
 problem = define_problem(problem_name)
 pareto_front = problem.pareto_front()
+save('OUTPUT/pareto_front.dat', problem.pareto_front(), header=f'Pareto Front of {problem_name}')
 print(f'The benchmark problem: {problem_name.upper()}\n')
 
 #####################################################################################################
@@ -31,23 +33,24 @@ print(f'The benchmark problem: {problem_name.upper()}\n')
 initial_sampling = define_sampling(initial_sampling_method_name)
 print(f'Performing initial sampling: {initial_sampling_method_name.upper()}\n')
 InitialData = initial_sampling.do(problem, n_samples=pop_size, pop=None)
-# parent_pop = np.copy(InitialData)
 
 #Evaluating initial samples (true eval)
 InitialEval = problem.evaluate(InitialData, return_values_of=['F'])
 InitialEval_G = problem.evaluate(InitialData, return_values_of=['G'])
+InitialEval_CV = problem.evaluate(InitialData, return_values_of=['CV'])
 
 if InitialEval_G is not None:
-	InitialEval = np.concatenate((InitialEval, InitialEval_G), axis=1)
+	InitialEval = np.concatenate((InitialEval, InitialEval_G, InitialEval_CV), axis=1)
 
-save('OUTPUT/initial_pop.dat', InitialData)
-save('OUTPUT/calc_pop.dat', InitialEval)
-save('OUTPUT/all_pop.dat', InitialData)
+save('OUTPUT/initial_pop_X.dat', InitialData, header='Generation 1: X')
+save('OUTPUT/initial_pop_FGCV.dat', InitialEval, header='Generation 1: F, G, CV')
+save('OUTPUT/all_pop_X.dat', InitialData, header='Generation 1: X')
+save('OUTPUT/all_pop_FGCV.dat', InitialEval, header='Generation 1: F, G, CV')
 save('DATA/training/X.dat', InitialData)
-save('DATA/training/OUT.dat', InitialEval)
+save('DATA/training/OUT.dat', InitialEval[:, 0:problem.n_obj+problem.n_constr])
 
 #Initial performance
-HV = [0]
+HV = [0.0]
 HV += [calc_hv(InitialEval[:,range(problem.n_obj)], ref=hv_ref)]
 
 #####################################################################################################
@@ -74,7 +77,6 @@ TrainedModel_Problem = TrainedModelProblem(problem, TrainedModel)
 #####################################################################################################
 
 #Evolutionary computation routines on the Trained Model
-
 selection = define_selection(selection_operator_name)
 crossover = define_crossover(crossover_operator_name, prob=prob_c, eta=eta_c)
 mutation = define_mutation(mutation_operator_name, eta=eta_m)
@@ -96,7 +98,7 @@ print(f'Performing optimization on the initial trained model using {algorithm_na
 optimal_solutions =  do_optimization(TrainedModel_Problem,
 									 algorithm, stopping_criteria,
 									 verbose=True, seed=1,
-									 return_least_infeasible=True)
+									 return_least_infeasible=False)
 print('--------------------------------------------------')
 print('\nOptimal solutions on the initial trained model is obtained!\n')
 print('--------------------------------------------------')
@@ -108,10 +110,10 @@ for update in range(number_of_updates):
 	#Saving best design variables (X_best) on every trained model
 	print(f'Updating the training data to the neural net, update={update+1}\n\n')
 	with open('DATA/prediction/X_best.dat','a') as f:
-		save(f, optimal_solutions.X, header = f'#Generation = {update+2}')
+		save(f, optimal_solutions.X, header=f'Generation {update+2}: X')
 
-	with open('OUTPUT/all_pop.dat', 'a') as f:
-		save(f, optimal_solutions.X, header = f'#Generation = {update+2}') 
+	with open('OUTPUT/all_pop_X.dat', 'a') as f:
+		save(f, optimal_solutions.X, header=f'Generation {update+2}: X') 
 	
 	with open('DATA/training/X.dat','a') as f:
 		save(f, optimal_solutions.X)
@@ -124,8 +126,8 @@ for update in range(number_of_updates):
 	if Eval_X_best_G is not None:
 		Eval_X_best = np.concatenate((Eval_X_best, Eval_X_best_G), axis=1)
 
-	with open('OUTPUT/calc_pop.dat', 'a') as f:
-		save(f, Eval_X_best, header = f'#Generation = {update+2}') 
+	with open('OUTPUT/all_pop_FGCV.dat', 'a') as f:
+		save(f, Eval_X_best, header=f'Generation {update+2}: F, G, CV') 
 
 	with open('DATA/training/OUT.dat', 'a') as f:
 		save(f, Eval_X_best)
@@ -150,57 +152,40 @@ for update in range(number_of_updates):
 	optimal_solutions =  do_optimization(TrainedModel_Problem,
 										 algorithm, stopping_criteria,
 										 verbose=True, seed=1,
-										 return_least_infeasible=True)
+										 return_least_infeasible=False)
 	print('--------------------------------------------------\n')
 	print('Optimal solutions on the trained model is obtained!\n')
 	print('--------------------------------------------------\n\n')
-
-print(f'NN based surrogate optimization is DONE! True eval = {100*(number_of_updates+2)}\n')
 
 #Evaluating the last X_best (true eval)
 Eval_X_best = problem.evaluate(optimal_solutions.X,
 							   return_values_of=['F'])
 
-save('OUTPUT/final_pop.dat', optimal_solutions.X)
-save('OUTPUT/final_calc_pop.dat', optimal_solutions.X)
-with open('OUTPUT/calc_pop.dat', 'a') as f:
-	save(f, Eval_X_best, header = f'#Generation = {number_of_updates+2}') 
+save('OUTPUT/final_pop_X.dat', optimal_solutions.X, header=f'Generation {number_of_updates+2}: X')
+save('OUTPUT/final_pop_FGCV.dat', Eval_X_best, header=f'Generation {number_of_updates+2}: FGCV')
+with open('OUTPUT/all_pop_X.dat', 'a') as f:
+	save(f, optimal_solutions.X, header=f'Generation = {number_of_updates+2}') 
+with open('OUTPUT/all_pop_FGCV.dat', 'a') as f:
+	save(f, Eval_X_best, header=f'Generation = {number_of_updates+2}') 
 
 #Performance measurement for the last solutions
 HV += [calc_hv(Eval_X_best[:,range(problem.n_obj)], ref=hv_ref)]
 
 #Ideal performance (pareto front)
-HV_pareto = calc_hv(problem.pareto_front(), ref=hv_ref)
+HV_pareto = [calc_hv(problem.pareto_front(), ref=hv_ref)]
 
 #True evaluation counters
 true_eval = [0]
 for update in range(number_of_updates+2):
 	true_eval += [pop_size*(update+1)]
 
-#####################################################################################################
+true_eval = np.array([true_eval]).T
+HV = np.array([HV]).T
+HV_pareto = np.array(HV_pareto)
+HV = np.concatenate((HV, true_eval),axis=1)
 
-#Plot
-if pf_plot or initial_samples_plot or optim_plot:
-	if pf_plot:
-		plt.plot(pareto_front[:,0],pareto_front[:,1],'k-', label='Pareto front')
-	if initial_samples_plot:
-		plt.plot(InitialEval[:,0], InitialEval[:,1], 'bo', label='Initial samples')
-	if optim_plot:
-		plt.plot(Eval_X_best[:,0], Eval_X_best[:,1], 'ro', label='Optimal solutions')
-	# plt.plot(optimal_solutions.F[:,0],optimal_solutions.F[:,1],'ro') 
-	plt.title(f'Objective functions space of {problem_name.upper()}')
-	plt.xlabel("F1")
-	plt.ylabel("F2")
-	plt.legend(loc="upper right")
-	plt.show()
+save('OUTPUT/HV.dat', HV, header='HV History: HV value, true eval counters')
+save('OUTPUT/HV_pareto.dat', HV_pareto, header=f'HV pareto of {problem_name.upper()}')
 
-if hv_plot:
-	plt.plot(true_eval, HV)
-	plt.hlines(HV_pareto, 0, len(true_eval)*pop_size, colors='k', label='Pareto')
-	plt.title(f'HV History of {problem_name.upper()}')
-	plt.xlabel("Number of true evaluations")
-	plt.ylabel("HV value")
-	plt.legend(loc="upper right")
-	plt.show()
-
+print(f'NN based surrogate optimization is DONE! True eval = {100*(number_of_updates+2)}\n')
 #####################################################################################################
