@@ -3,7 +3,7 @@
 % Neural-Network-based Surrogate Optimization of Benchmark Test Problems       %
 % Author: Alfiyandy Hariansyah                                                 %
 % Institution: Institute of Fluid Science, Tohoku University                   %
-% Date: 2/9/2021                                                               %
+% Date: 2/12/2021                                                              %
 % Deep Learning Framework: PyTorch                                             %
 % Optimization: Genetic Algorithms (Framework: pymoo)                          %
 % Language: Python                                                             %
@@ -19,7 +19,7 @@ SAMPLING_METHOD = real_lhs
 POPULATION_SIZE = 100
 %
 % Problem Benchmark (zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, osy, custom)
-PROBLEM = osy
+PROBLEM = zdt3
 %
 %------------------------- OPTIMIZATION CONFIGURATION --------------------------%
 %
@@ -40,7 +40,7 @@ ETA_MUTATION = 20
 %
 % Stopping criteria (n_gen|n_iter, n_eval, igd, time, x_tol, f_tol)
 TERMINATION = n_gen
-NUMBER_OF_GENERATION = 150
+NUMBER_OF_GENERATION = 250
 %
 %----------------------- NEURAL NETWORK CONFIGURATION --------------------------%
 %
@@ -57,14 +57,16 @@ LEARNING_RATE = 2E-4
 BATCHRATE = 5
 %
 % Number of updates (initial training is not counted)
-NO_OF_UPDATES = 5
+NO_OF_UPDATES = 15
 %
 %---------------------------- PLOT CONFIGURATION -------------------------------%
 %
-% What to plot? (TRUE, FALSE)
-PLOT_PARETO_FRONT = TRUE
-PLOT_OPTIMAL_SOLUTIONS = TRUE
+% What to plot for objective spaces? (TRUE, FALSE)
+PLOT_PARETO_FRONT = FALSE
+PLOT_BEST_POPULATION = FALSE
 PLOT_INITIAL_SAMPLES = FALSE
-PLOT_HV_HISTORY = TRUE
+%
+% What to plot for performance?
+PLOT_HV_HISTORY = FALSE
 PLOT_IGD_HISTORY = FALSE
 %

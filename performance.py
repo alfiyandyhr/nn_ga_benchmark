@@ -1,7 +1,7 @@
 #Performance Indicator Measurement
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#2/10/2021
+#2/12/2021
 #####################################################################################################
 
 def calc_hv(pop, ref):
@@ -25,4 +25,7 @@ def calc_hv(pop, ref):
 		else:
 			volume += (ref[1] - pop[indiv,1]) * (pop[indiv+1,0] - pop[indiv,0])
 
+	if volume < 0.0:
+		volume = 0.0
+		
 	return volume
