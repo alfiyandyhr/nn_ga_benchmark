@@ -19,7 +19,7 @@ SAMPLING_METHOD = real_lhs
 POPULATION_SIZE = 100
 %
 % Problem Benchmark (zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, osy, custom)
-PROBLEM = zdt3
+PROBLEM = osy
 %
 %------------------------- OPTIMIZATION CONFIGURATION --------------------------%
 %
@@ -51,20 +51,21 @@ N_EPOCH = 1000
 N_NEURON = 100
 %
 % Learning rate (for zdt1 2E-4 is found to be the best)
-LEARNING_RATE = 2E-4
+LEARNING_RATE = 0.01
 %
 % Batch rate
 BATCHRATE = 5
 %
 % Number of updates (initial training is not counted)
-NO_OF_UPDATES = 15
+NO_OF_UPDATES = 5
 %
 %---------------------------- PLOT CONFIGURATION -------------------------------%
 %
 % What to plot for objective spaces? (TRUE, FALSE)
-PLOT_PARETO_FRONT = FALSE
+PLOT_PARETO_FRONT = TRUE
 PLOT_BEST_POPULATION = FALSE
-PLOT_INITIAL_SAMPLES = FALSE
+PLOT_INITIAL_POPULATION = FALSE
+PLOT_ALL_POPULATION = TRUE
 %
 % What to plot for performance?
 PLOT_HV_HISTORY = FALSE

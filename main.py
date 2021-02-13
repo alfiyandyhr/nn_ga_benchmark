@@ -122,15 +122,18 @@ for update in range(number_of_updates):
 	Eval_X_best = problem.evaluate(optimal_solutions.X,
 								   return_values_of=['F'])
 	Eval_X_best_G = problem.evaluate(optimal_solutions.X,
-							   	   return_values_of=['G'])
+							   	     return_values_of=['G'])
+	Eval_X_best_CV = problem.evaluate(optimal_solutions.X,
+									  return_values_of=['CV'])
+
 	if Eval_X_best_G is not None:
-		Eval_X_best = np.concatenate((Eval_X_best, Eval_X_best_G), axis=1)
+		Eval_X_best = np.concatenate((Eval_X_best, Eval_X_best_G, Eval_X_best_CV), axis=1)
 
 	with open('OUTPUT/all_pop_FGCV.dat', 'a') as f:
-		save(f, Eval_X_best, header=f'Generation {update+2}: F, G, CV') 
+		save(f, Eval_X_best, header=f'Generation {update+2}: F, G, CV')
 
 	with open('DATA/training/OUT.dat', 'a') as f:
-		save(f, Eval_X_best)
+		save(f, Eval_X_best[:, 0:problem.n_obj+problem.n_constr]) 
 
 	#Performance measurement for each iteration
 	HV += [calc_hv(Eval_X_best[:,range(problem.n_obj)], ref=hv_ref)]
@@ -160,13 +163,20 @@ for update in range(number_of_updates):
 #Evaluating the last X_best (true eval)
 Eval_X_best = problem.evaluate(optimal_solutions.X,
 							   return_values_of=['F'])
+Eval_X_best_G = problem.evaluate(optimal_solutions.X,
+							   	 return_values_of=['G'])
+Eval_X_best_CV = problem.evaluate(optimal_solutions.X,
+								  return_values_of=['CV'])
+
+if Eval_X_best_G is not None:
+	Eval_X_best = np.concatenate((Eval_X_best, Eval_X_best_G, Eval_X_best_CV), axis=1)
 
 save('OUTPUT/final_pop_X.dat', optimal_solutions.X, header=f'Generation {number_of_updates+2}: X')
-save('OUTPUT/final_pop_FGCV.dat', Eval_X_best, header=f'Generation {number_of_updates+2}: FGCV')
+save('OUTPUT/final_pop_FGCV.dat', Eval_X_best, header=f'Generation {number_of_updates+2}: F, G, CV')
 with open('OUTPUT/all_pop_X.dat', 'a') as f:
-	save(f, optimal_solutions.X, header=f'Generation = {number_of_updates+2}') 
+	save(f, optimal_solutions.X, header=f'Generation {number_of_updates+2}: X')
 with open('OUTPUT/all_pop_FGCV.dat', 'a') as f:
-	save(f, Eval_X_best, header=f'Generation = {number_of_updates+2}') 
+	save(f, Eval_X_best, header=f'Generation {number_of_updates+2}: F, G, CV') 
 
 #Performance measurement for the last solutions
 HV += [calc_hv(Eval_X_best[:,range(problem.n_obj)], ref=hv_ref)]

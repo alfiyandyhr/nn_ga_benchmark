@@ -9,22 +9,31 @@ import matplotlib.pyplot as plt
 
 #Plot
 if pf_plot or initial_samples_plot or best_pop_plot:
-
-	pareto_front = np.genfromtxt('OUTPUT/pareto_front.dat',
-				   skip_header=0, skip_footer=0, delimiter=' ')
-	best_pop = np.genfromtxt('OUTPUT/final_pop_FGCV.dat',
-			   skip_header=0, skip_footer=0, delimiter=' ')
-	initial_samples = np.genfromtxt('OUTPUT/initial_pop_FGCV.dat',
-				      skip_header=0, skip_footer=0, delimiter=' ')
-
+	if all_pop_plot:
+		all_pop = np.genfromtxt('OUTPUT/all_pop_FGCV.dat', delimiter=' ')
+		all_pop_feasible = np.delete(all_pop, np.where(all_pop[:,-1]>0.0)[0], axis=0)
+		all_pop_infeasible = np.delete(all_pop, np.where(all_pop[:,-1]==0.0)[0], axis=0)
+		plt.plot(all_pop_infeasible[:,0],all_pop_infeasible[:,1],'ro', markersize=4, label='Infeasible')
+		plt.plot(all_pop_feasible[:,0],all_pop_feasible[:,1],'bo', markersize=4, label='Feasible')
 
 	if pf_plot:
+		pareto_front = np.genfromtxt('OUTPUT/pareto_front.dat', delimiter=' ')
 		plt.plot(pareto_front[:,0],pareto_front[:,1],'k-', label='Pareto front')
-	if initial_samples_plot:
-		plt.plot(initial_samples[:,0], initial_samples[:,1], 'bo', label='Initial samples')
+
+	if initial_pop_plot:
+		initial_pop = np.genfromtxt('OUTPUT/initial_pop_FGCV.dat', delimiter=' ')
+		initial_pop_feasible = np.delete(initial_pop, np.where(initial_pop[:,-1]>0.0), axis=0)
+		initial_pop_infeasible = np.delete(initial_pop, np.where(initial_pop[:,-1]==0.0), axis=0)
+		plt.plot(initial_pop_infeasible[:,0], initial_pop_infeasible[:,1], 'ro', label='Initial solutions - infeasible')
+		plt.plot(initial_pop_feasible[:,0], initial_pop_feasible[:,1], 'bo', label='Initial solutions - feasible')
+	
 	if best_pop_plot:
-		plt.plot(best_pop[:,0], best_pop[:,1], 'ro', label='Best optimal solutions')
-	# plt.plot(optimal_solutions.F[:,0],optimal_solutions.F[:,1],'ro') 
+		best_pop = np.genfromtxt('OUTPUT/final_pop_FGCV.dat', delimiter=' ')
+		best_pop_feasible = np.delete(best_pop, np.where(best_pop[:,-1]>0.0), axis=0)
+		best_pop_infeasible = np.delete(best_pop, np.where(best_pop[:,-1]==0.0), axis=0)
+		plt.plot(best_pop_infeasible[:,0], best_pop_infeasible[:,1], 'ro', label='Best optimal solutions - infeasible')
+		plt.plot(best_pop_feasible[:,0], best_pop_feasible[:,1], 'bo', label='Best optimal solutions - feasible')
+	
 	plt.title(f'Objective functions space of {problem_name.upper()}')
 	plt.xlabel("F1")
 	plt.ylabel("F2")
