@@ -6,9 +6,9 @@
 import numpy as np
 
 from pymoo.model.problem import Problem
-from pymoo.model.individual import Individual
 from pymoo.model.population import Population, pop_from_array_or_individual
 from pymoo.model.sampling import Sampling
+from pymoo.model.evaluator import Evaluator
 from pymoo.algorithms.nsga2 import NSGA2, RankAndCrowdingSurvival
 from pymoo.optimize import minimize
 from pymoo.factory import get_problem, get_sampling, get_selection
@@ -130,22 +130,6 @@ def set_population(n_individuals):
 	This will return a population class in pymoo
 	"""
 	return Population(n_individuals=n_individuals)
-
-def set_population_from_array_or_individual(array):
-	"""
-	This will return a population class in pymoo
-	"""
-	return pop_from_array_or_individual(array)
-
-
-def merge(parent_pop, child_pop):
-	"""Merge two populations"""
-	X = np.concatenate((parent_pop.X, child_pop.X), axis=0)
-	F = np.concatenate((parent_pop.F, child_pop.F), axis=0)
-	G = np.concatenate((parent_pop.G, child_pop.G), axis=0)
-	CV = np.concatenate((parent_pop.CV, child_pop.CV), axis=0)
-
-	return set_individual(X, F, G, CV)
 
 def do_survival(problem, pop, n_survive):
 	"""This will merge two pops and return the best surviving pop"""

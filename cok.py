@@ -10,8 +10,6 @@ from performance import calc_hv
 from SaveOutput import save
 import matplotlib.pyplot as plt
 import torch
-
-import os
 #####################################################################################################
 
 print('------------------------------------------------------')
@@ -29,91 +27,78 @@ print(f'The benchmark problem: {problem_name.upper()}\n')
 
 #####################################################################################################
 
-#Initial sampling
+#Initial sampling and evaluations
 initial_sampling = define_sampling(initial_sampling_method_name)
 print(f'Performing initial sampling: {initial_sampling_method_name.upper()}\n')
-InitialData = initial_sampling.do(problem, n_samples=pop_size, pop=None)
+parent_pop = initial_sampling.do(problem, n_samples=pop_size)
+Evaluator().eval(problem, parent_pop)
 
-#Evaluating initial samples (true eval)
-InitialEval_F = problem.evaluate(InitialData, return_values_of=['F'])
-InitialEval_G = problem.evaluate(InitialData, return_values_of=['G'])
-InitialEval_CV = problem.evaluate(InitialData, return_values_of=['CV'])
+print(parent_pop.get('CV', 'G')[0])
 
-if InitialEval_G is not None:
-	InitialEval = np.concatenate((InitialEval_F, InitialEval_G, InitialEval_CV), axis=1)
+# #Initial performance
+# HV = [0.0]
+# HV += [calc_hv(InitialEval[:,range(problem.n_obj)], ref=hv_ref)]
 
-parent_pop = set_individual(X=InitialData,
-							F=InitialEval_F,
-							G=InitialEval_G,
-							CV=InitialEval_CV)
+# print(HV)
+# #####################################################################################################
+# #Initial training for neural nets
+# print('Feeding the training data to the neural net...\n\n')
 
-parent_pop = set_population_from_array_or_individual(parent_pop)
+# Model = NeuralNet(D_in=problem.n_var,
+# 				  H=N_Neuron, D=N_Neuron,
+# 				  D_out=problem.n_obj+problem.n_constr)
 
+# print('Performing initial training...\n')
 
-#Initial performance
-HV = [0.0]
-HV += [calc_hv(InitialEval[:,range(problem.n_obj)], ref=hv_ref)]
+# TrainedModel = train(problem=problem,
+# 					 model=Model,
+# 				     N_Epoch=N_Epoch,
+# 				     lr=lr,
+# 				     batchrate=batchrate)
 
-print(HV)
-#####################################################################################################
-#Initial training for neural nets
-print('Feeding the training data to the neural net...\n\n')
+# print('\nAn initial trained model is obtained!\n')
+# print('--------------------------------------------------')
+# TrainedModel_Problem = TrainedModelProblem(problem, TrainedModel)
 
-Model = NeuralNet(D_in=problem.n_var,
-				  H=N_Neuron, D=N_Neuron,
-				  D_out=problem.n_obj+problem.n_constr)
+# #####################################################################################################
 
-print('Performing initial training...\n')
+# #Evolutionary computation routines on the Trained Model
+# selection = define_selection(selection_operator_name)
+# crossover = define_crossover(crossover_operator_name, prob=prob_c, eta=eta_c)
+# mutation = define_mutation(mutation_operator_name, eta=eta_m)
 
-TrainedModel = train(problem=problem,
-					 model=Model,
-				     N_Epoch=N_Epoch,
-				     lr=lr,
-				     batchrate=batchrate)
+# #EA settings
+# EA = EvolutionaryAlgorithm(algorithm_name)
+# algorithm = EA.setup(pop_size=pop_size,
+# 					 sampling=initial_sampling,
+# 					 # selection=selection,
+# 					 crossover=crossover,
+# 					 mutation=mutation)
 
-print('\nAn initial trained model is obtained!\n')
-print('--------------------------------------------------')
-TrainedModel_Problem = TrainedModelProblem(problem, TrainedModel)
+# #Stopping criteria
+# stopping_criteria_def = StoppingCriteria(termination_name)
+# stopping_criteria = stopping_criteria_def.set_termination(n_gen=n_gen)
 
-#####################################################################################################
+# #Obtaining optimal solutions on the initial trained model
+# print(f'Performing optimization on the initial trained model using {algorithm_name.upper()}\n')
+# optimal_solutions =  do_optimization(TrainedModel_Problem,
+# 									 algorithm, stopping_criteria,
+# 									 verbose=True, seed=1,
+# 									 return_least_infeasible=False)
+# print('--------------------------------------------------')
+# print('\nOptimal solutions on the initial trained model is obtained!\n')
+# print('--------------------------------------------------')
 
-#Evolutionary computation routines on the Trained Model
-selection = define_selection(selection_operator_name)
-crossover = define_crossover(crossover_operator_name, prob=prob_c, eta=eta_c)
-mutation = define_mutation(mutation_operator_name, eta=eta_m)
+# child_pop = set_individual(X=optimal_solutions.X,
+# 						   F=optimal_solutions.F,
+# 						   G=optimal_solutions.G,
+# 						   CV=optimal_solutions.CV)
 
-#EA settings
-EA = EvolutionaryAlgorithm(algorithm_name)
-algorithm = EA.setup(pop_size=pop_size,
-					 sampling=initial_sampling,
-					 # selection=selection,
-					 crossover=crossover,
-					 mutation=mutation)
+# child_pop = set_population_from_array_or_individual(child_pop)
 
-#Stopping criteria
-stopping_criteria_def = StoppingCriteria(termination_name)
-stopping_criteria = stopping_criteria_def.set_termination(n_gen=n_gen)
+# survivors = Population.merge(parent_pop, child_pop)
 
-#Obtaining optimal solutions on the initial trained model
-print(f'Performing optimization on the initial trained model using {algorithm_name.upper()}\n')
-optimal_solutions =  do_optimization(TrainedModel_Problem,
-									 algorithm, stopping_criteria,
-									 verbose=True, seed=1,
-									 return_least_infeasible=False)
-print('--------------------------------------------------')
-print('\nOptimal solutions on the initial trained model is obtained!\n')
-print('--------------------------------------------------')
-
-child_pop = set_individual(X=optimal_solutions.X,
-						   F=optimal_solutions.F,
-						   G=optimal_solutions.G,
-						   CV=optimal_solutions.CV)
-
-child_pop = set_population_from_array_or_individual(child_pop)
-
-survivors = Population.merge(parent_pop, child_pop)
-
-survivors = do_survival(problem, survivors, n_survive=pop_size)
+# survivors = do_survival(problem, survivors, n_survive=pop_size)
 
 #####################################################################################################
 

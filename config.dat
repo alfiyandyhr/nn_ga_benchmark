@@ -57,17 +57,17 @@ LEARNING_RATE = 0.01
 BATCHRATE = 5
 %
 % Number of updates (initial training is not counted)
-NO_OF_UPDATES = 5
+NO_OF_UPDATES = 25
 %
 %---------------------------- PLOT CONFIGURATION -------------------------------%
 %
 % What to plot for objective spaces? (TRUE, FALSE)
 PLOT_PARETO_FRONT = TRUE
-PLOT_BEST_POPULATION = FALSE
+PLOT_BEST_POPULATION = TRUE
 PLOT_INITIAL_POPULATION = FALSE
-PLOT_ALL_POPULATION = TRUE
+PLOT_ALL_POPULATION = FALSE
 %
 % What to plot for performance?
-PLOT_HV_HISTORY = FALSE
+PLOT_HV_HISTORY = TRUE
 PLOT_IGD_HISTORY = FALSE
 %
