@@ -1,13 +1,15 @@
 #Genetic Algorithms using pymoo
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#2/8/2021
+#2/13/2021
 #####################################################################################################
 import numpy as np
 
 from pymoo.model.problem import Problem
+from pymoo.model.population import Population, pop_from_array_or_individual
 from pymoo.model.sampling import Sampling
-from pymoo.algorithms.nsga2 import NSGA2
+from pymoo.model.evaluator import Evaluator
+from pymoo.algorithms.nsga2 import NSGA2, RankAndCrowdingSurvival
 from pymoo.optimize import minimize
 from pymoo.factory import get_problem, get_sampling, get_selection
 from pymoo.factory import get_crossover, get_mutation, get_termination
@@ -116,6 +118,24 @@ class StoppingCriteria():
 		"""Returning the python object"""	
 		termination = get_termination(self.name, n_gen)
 		return termination
+
+def set_individual(X, F, G, CV):
+	"""
+	This will return an individual class in pymoo
+	"""
+	return Individual(X=X, F=F, G=G, CV=CV)
+
+def set_population(n_individuals):
+	"""
+	This will return a population class in pymoo
+	"""
+	return Population(n_individuals=n_individuals)
+
+def do_survival(problem, pop, n_survive):
+	"""This will merge two pops and return the best surviving pop"""
+	Survival = RankAndCrowdingSurvival()
+
+	return Survival.do(problem, pop, n_survive)
 
 def do_optimization(problem, algorithm, termination,
 	verbose=False, seed=1, return_least_infeasible=True):

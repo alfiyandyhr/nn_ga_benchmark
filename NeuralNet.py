@@ -153,38 +153,50 @@ def train(problem, model, N_Epoch, lr, batchrate):
 	optimizer = torch.optim.Adam(model.parameters(),lr=lr)
 
 	train_lost = np.zeros(N_Epoch)
-	test_lost  = np.zeros(N_Epoch)
-	min_test_lost = 1.0e10
+	valid_lost  = np.zeros(N_Epoch)
+	valid_loss_min = np.Inf
 
 	#Training
 	for epoch in range(N_Epoch):
+		#Monitor losses
+		train_loss = 0.0
+		valid_loss = 0.0
 
-		sum_train_loss = 0
 		perm = np.random.permutation(N_train)
 
+		###################
+		# Train the model #
+		###################
+		model.train()
 		for i in range(0, N_train, batchsize):
 			optimizer.zero_grad()
 			OUT_pred_train = model(X_train[perm[i:i+batchsize]].float())
-			train_loss = loss_fn(OUT_pred_train, OUT_train[perm[i:i+batchsize]].float())
-			train_loss.backward()
+			loss = loss_fn(OUT_pred_train, OUT_train[perm[i:i+batchsize]].float())
+			loss.backward()
 			optimizer.step()
-			sum_train_loss += train_loss.data*batchsize
-		train_lost[epoch] = sum_train_loss/N_train
-		if epoch % 100 == 0:
-		    print(f'N_Epoch = {epoch}', f'Loss = {train_lost[epoch]}')
+			train_loss += loss.item()*batchsize
 
-
+		######################
+		# Validate the model #
+		######################
 		model.eval()
 		OUT_pred_test = model(X_test[0:N_test].float())
-		test_loss = loss_fn(OUT_pred_test, OUT_test[0:N_test].float())
+		loss = loss_fn(OUT_pred_test, OUT_test[0:N_test].float())
+		valid_loss = loss.item()
 
-		test_lost[epoch] = test_loss.data
+		#Average loss over an epoch
+		train_lost[epoch] = train_loss/N_train
+		valid_lost[epoch] = valid_loss
 
-		if min_test_lost-test_lost[epoch]>0:
-			min_test_lost=test_lost[epoch]
+		if epoch % 50 == 0:
+		    print(f'N_Epoch = {epoch}, Train Loss = {train_lost[epoch]}, Valid Loss = {valid_loss}')
+
+		#Save the model when validation loss has decreased
+		if valid_loss <= valid_loss_min:
+			valid_loss_min=valid_loss
 			TrainedModel = model
 
-		if epoch>=50 and np.average(test_lost[epoch-25:epoch])-np.average(test_lost[epoch-50:epoch-25])>0:
+		if epoch>=50 and np.average(valid_lost[epoch-25:epoch])-np.average(valid_lost[epoch-50:epoch-25])>0:
 			break
 
 		# OUT_pred = model(X_t.float())
