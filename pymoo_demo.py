@@ -3,6 +3,7 @@ from pymoo.algorithms.nsga2 import NSGA2, RankAndCrowdingSurvival
 from pymoo.model.evaluator import Evaluator
 from pymoo.model.population import Population, pop_from_array_or_individual
 from pymoo.optimize import minimize
+from eval import evaluate
 
 from SaveOutput import save
 
@@ -26,11 +27,9 @@ res = minimize(problem,
 
 child_pop = pop_from_array_or_individual(res.X)
 
-print(child_pop.get('G'))
+pop_eval = evaluate(problem, child_pop)
 
-Evaluator().eval(problem, child_pop)
-
-print(child_pop.get('G'))
+print(pop_eval)
 
 # merged_pop = Population.merge(parent_pop, child_pop)
 
