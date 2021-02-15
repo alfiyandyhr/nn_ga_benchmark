@@ -13,7 +13,6 @@ from pymoo.algorithms.nsga2 import NSGA2, RankAndCrowdingSurvival
 from pymoo.optimize import minimize
 from pymoo.factory import get_problem, get_sampling, get_selection
 from pymoo.factory import get_crossover, get_mutation, get_termination
-from pymoo.visualization.scatter import Scatter
 
 from NeuralNet import calculate
 #####################################################################################################
@@ -131,11 +130,23 @@ def set_population(n_individuals):
 	"""
 	return Population(n_individuals=n_individuals)
 
-def do_survival(problem, pop, n_survive):
+def do_survival(problem, merged_pop, n_survive):
 	"""This will merge two pops and return the best surviving pop"""
 	Survival = RankAndCrowdingSurvival()
 
-	return Survival.do(problem, pop, n_survive)
+	surviving_pop = Survival.do(problem, merged_pop, n_survive)
+
+	surviving_pop_eval = surviving_pop.get('F')
+	surviving_pop_G = surviving_pop.get('G')
+	surviving_pop_CV = surviving_pop.get('CV')
+
+	if surviving_pop_G[0] is not None:
+		surviving_pop_eval = np.concatenate((surviving_pop_eval, surviving_pop_G, surviving_pop_CV), axis=1)
+	else:
+		surviving_pop_G = np.zeros((len(surviving_pop_eval),1))
+		surviving_pop_eval = np.concatenate((surviving_pop_eval, surviving_pop_G, surviving_pop_CV), axis=1)
+
+	return surviving_pop, surviving_pop_eval
 
 def do_optimization(problem, algorithm, termination,
 	verbose=False, seed=1, return_least_infeasible=True):

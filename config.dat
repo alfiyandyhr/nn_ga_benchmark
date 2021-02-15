@@ -3,7 +3,7 @@
 % Neural-Network-based Surrogate Optimization of Benchmark Test Problems       %
 % Author: Alfiyandy Hariansyah                                                 %
 % Institution: Institute of Fluid Science, Tohoku University                   %
-% Date: 2/12/2021                                                              %
+% Date: 2/15/2021                                                              %
 % Deep Learning Framework: PyTorch                                             %
 % Optimization: Genetic Algorithms (Framework: pymoo)                          %
 % Language: Python                                                             %
@@ -19,9 +19,9 @@ SAMPLING_METHOD = real_lhs
 POPULATION_SIZE = 100
 %
 % Problem Benchmark (zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, osy, custom)
-PROBLEM = osy
+PROBLEM = zdt2
 %
-%------------------------- OPTIMIZATION CONFIGURATION --------------------------%
+%------------- OPTIMIZATION CONFIGURATION ON THE TRAINED NN MODEL -------------%
 %
 % Optimization algorithm (nsga, nsga2, nsga3)
 OPTIMIZATION_ALGORITHM = nsga2
@@ -42,7 +42,31 @@ ETA_MUTATION = 20
 TERMINATION = n_gen
 NUMBER_OF_GENERATION = 250
 %
+%------------------ OPTIMIZATION CONFIGURATION OF PURE GA --------------------%
+%
+% Optimization algorithm (nsga, nsga2, nsga3)
+OPTIMIZATION_ALGORITHM_GA = nsga2
+%
+% Selection operator (random, tournament)
+SELECTION_OPERATOR_GA = tournament
+%
+% Crossover operator (real_sbx, int_sbx, read_de, perm_ox, perm_erx)
+CROSSOVER_OPERATOR_GA = real_sbx
+CROSSOVER_PROBABILITY_GA = 0.9
+ETA_CROSSOVER_GA = 15
+%
+% Mutation operator (none, real_pm, int_pm, bin_bit-flip, perm_inv)
+MUTATION_OPERATOR_GA = real_pm
+ETA_MUTATION_GA = 20
+%
+% Stopping criteria (n_gen|n_iter, n_eval, igd, time, x_tol, f_tol)
+TERMINATION_GA = n_gen
+NUMBER_OF_GENERATION_GA = 100
+%
 %----------------------- NEURAL NETWORK CONFIGURATION --------------------------%
+%
+% Neural Network Activation (TRUE,FALSE), if false, pure GA will be used
+USE_NN = TRUE
 %
 % Number of epoch(s)
 N_EPOCH = 1000
@@ -50,24 +74,48 @@ N_EPOCH = 1000
 % Number of neurons in the hidden layer
 N_NEURON = 100
 %
-% Learning rate (for zdt1 2E-4 is found to be the best)
-LEARNING_RATE = 0.01
+% Learning rate (for zdt3 and osy it's 2E-5)
+LEARNING_RATE = 2E-5
 %
 % Batch rate
 BATCHRATE = 5
 %
 % Number of updates (initial training is not counted)
-NO_OF_UPDATES = 25
+NO_OF_UPDATES = 5
 %
-%---------------------------- PLOT CONFIGURATION -------------------------------%
+%--------------------- PLOT CONFIGURATION OF NN SURROGATE ---------------------%
 %
 % What to plot for objective spaces? (TRUE, FALSE)
-PLOT_PARETO_FRONT = TRUE
-PLOT_BEST_POPULATION = TRUE
+PLOT_PARETO_FRONT = FALSE
+PLOT_BEST_POPULATION = FALSE
 PLOT_INITIAL_POPULATION = FALSE
 PLOT_ALL_POPULATION = FALSE
 %
 % What to plot for performance?
-PLOT_HV_HISTORY = TRUE
+PLOT_HV_HISTORY = FALSE
 PLOT_IGD_HISTORY = FALSE
+%
+%---------------------- PLOT CONFIGURATION OF PURE GA -------------------------%
+%
+% What to plot for objective spaces? (TRUE, FALSE)
+PLOT_PARETO_FRONT_GA = TRUE
+PLOT_BEST_POPULATION_GA = FALSE
+PLOT_INITIAL_POPULATION_GA = FALSE
+PLOT_ALL_POPULATION_GA = TRUE
+%
+% What to plot for performance?
+PLOT_HV_HISTORY_GA = FALSE
+PLOT_IGD_HISTORY_GA = FALSE
+%
+%---------------------- PLOT CONFIGURATION COMPARISON -------------------------%
+%
+% What to plot for objective spaces? (TRUE, FALSE)
+PLOT_PARETO_FRONT_COMPARISON = FALSE
+PLOT_BEST_POPULATION_COMPARISON = FALSE
+PLOT_INITIAL_POPULATION_COMPARISON = FALSE
+PLOT_ALL_POPULATION_COMPARISON = FALSE
+%
+% What to plot for performance?
+PLOT_HV_HISTORY_COMPARISON = FALSE
+PLOT_IGD_HISTORY_COMPARISON = FALSE
 %

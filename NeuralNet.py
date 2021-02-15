@@ -1,7 +1,7 @@
 #NeuralNet routines, including training and predicting
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#2/6/2021
+#2/15/2021
 #####################################################################################################
 import torch
 import numpy as np
@@ -173,6 +173,7 @@ def train(problem, model, N_Epoch, lr, batchrate):
 			OUT_pred_train = model(X_train[perm[i:i+batchsize]].float())
 			loss = loss_fn(OUT_pred_train, OUT_train[perm[i:i+batchsize]].float())
 			loss.backward()
+			torch.nn.utils.clip_grad_value_(model.parameters(), clip_value=1.0)
 			optimizer.step()
 			train_loss += loss.item()*batchsize
 
