@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
 
 fig = plt.figure()
-ax = plt.axes(xlim=(-0.1,1.1),ylim=(-0.1,7.1))
+ax = plt.axes(xlim=(-350,50),ylim=(-10,100))
 ln1, = plt.plot([], [], 'bo', markersize=2, label='NN+GA')
 ln2, = plt.plot([], [], 'ro', markersize=2, label='NSGA2')
 ln3, = plt.plot([], [], 'k-', label='Pareto Front')
+ln4, = plt.plot([], [], 'bx', markersize=2, label='NN+GA')
+ln5, = plt.plot([], [], 'rx', markersize=2, label='NSGA2')
 x, y_nn, y_nsga2 = [], [], []
 
 all_pop = np.genfromtxt('OUTPUT/PURE_GA/all_pop_FGCV.dat', delimiter=' ')
@@ -22,15 +24,23 @@ def init():
 	ln1.set_data([],[])
 	ln2.set_data([],[])
 	ln3.set_data(pareto_front[:,0],pareto_front[:,1])
+	ln4.set_data([],[])
+	ln5.set_data([],[])
 
 
 def update(i):
-	x_nsga2 = all_pop_feasible_ga[0:100*i,0]
-	y_nsga2 = all_pop_feasible_ga[0:100*i,1]
-	ln2.set_data(x_nsga2, y_nsga2)
-	x_nn = all_pop_feasible_nn[0:100*i,0]
-	y_nn = all_pop_feasible_nn[0:100*i,1]
-	ln1.set_data(x_nn, y_nn)
+	x_nsga2_feas = all_pop_feasible_ga[0:100*i,0]
+	y_nsga2_feas = all_pop_feasible_ga[0:100*i,1]
+	ln2.set_data(x_nsga2_feas, y_nsga2_feas)
+	x_nn_feas = all_pop_feasible_nn[0:100*i,0]
+	y_nn_feas = all_pop_feasible_nn[0:100*i,1]
+	ln1.set_data(x_nn_feas, y_nn_feas)
+	x_nsga2_infeas = all_pop_infeasible_ga[0:100*i,0]
+	y_nsga2_infeas = all_pop_infeasible_ga[0:100*i,1]
+	ln5.set_data(x_nsga2_infeas, y_nsga2_infeas)
+	x_nn_infeas = all_pop_infeasible_nn[0:100*i,0]
+	y_nn_infeas = all_pop_infeasible_nn[0:100*i,1]
+	ln4.set_data(x_nn_infeas, y_nn_infeas)
 	
 ani = FuncAnimation(fig, update, init_func=init)
 

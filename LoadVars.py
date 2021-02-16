@@ -2,7 +2,7 @@
 #Outputting variables as python variables loaded in main.py
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#2/6/2021
+#2/16/2021
 #####################################################################################################
 
 def load_vars():
@@ -52,6 +52,7 @@ use_nn = eval(config['USE_NN'].title())
 N_Epoch = eval(config['N_EPOCH'])
 N_Neuron = eval(config['N_NEURON'])
 lr = eval(config['LEARNING_RATE'])
+train_ratio = eval(config['TRAIN_RATIO'])
 batchrate = eval(config['BATCHRATE'])
 number_of_updates = eval(config['NO_OF_UPDATES'])
 

@@ -1,12 +1,16 @@
 #NeuralNet routines, including training and predicting
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#2/15/2021
+#2/16/2021
 #####################################################################################################
 import torch
 import numpy as np
 from DataProcess import normalize, denormalize, remove_duplicates
+from DataProcess import do_gap_statistics
+from DataProcess import do_KMeans_clustering, do_oversampling
+from DataProcess import calc_batchsize, do_cross_validation
 from sklearn.cluster import KMeans
+
 
 class NeuralNet(torch.nn.Module):
 	"""A neural net architecture"""
@@ -37,8 +41,16 @@ class NeuralNet(torch.nn.Module):
 		phi = self.hidden_layer2(h_relu)
 		return phi
 
-def train(problem, model, N_Epoch, lr, batchrate):
-	"""Training routines"""
+def train(problem,
+		  model,
+		  N_Epoch,
+		  lr,
+		  train_ratio,
+		  batchrate):
+	"""
+	Training routines
+	"""
+
 	#Loading training data
 	X = np.genfromtxt('DATA/training/X.dat',
 		skip_header=0, skip_footer=0, delimiter=' ')
@@ -63,90 +75,35 @@ def train(problem, model, N_Epoch, lr, batchrate):
 	"""
 	Gap statistics
 	"""
-	max_cluster = 30
-	trial = 10
-	count = np.zeros(max_cluster).astype(np.int32)
-	X_rnd = np.random.rand(len(X_nodup), problem.n_var)
-	
-	for i in range(trial):
-		gap = np.zeros(max_cluster).astype(np.float32)
-		gap_diff = np.zeros(max_cluster).astype(np.float32)
-		for j in range(max_cluster):
-			kmeans     = KMeans(n_clusters=j+1).fit(X_nodup)
-			kmeans_rnd = KMeans(n_clusters=j+1).fit(X_rnd)
-			gap[j] = np.log(kmeans_rnd.inertia_/kmeans.inertia_)
-			
-			if j==0:
-				gap_diff[0] = 0.0
-			else:
-				gap_diff[j] = gap[j] - gap[j-1]
-				if gap_diff[j] < 0:
-					break
-		
-		count[np.argmax(gap)] = count[np.argmax(gap)]+1
-	
-	N_cluster = np.argmax(count)+1
+	N_cluster = do_gap_statistics(X_nodup, problem.n_var)
 
 	"""
 	Clustering
 	"""
-	kmeans = KMeans(n_clusters=N_cluster).fit(X_nodup)
-	cluster_label = kmeans.labels_
-	
-	cluster_size = np.zeros(N_cluster).astype(np.int32)
-	for i in range(N_cluster):
-		cluster_size[i] = len(np.where(cluster_label==i)[0])
-	
-	over_coef = np.zeros(N_cluster).astype(np.int32)
-	for i in range(N_cluster):
-		over_coef[i] = np.copy((max(cluster_size))/cluster_size[i])
-		if over_coef[i] > 10:
-			over_coef[i] = 10
+	cluster_label, over_coef = do_KMeans_clustering(N_cluster, X_nodup)
 
 	"""
 	Over sampling
 	"""
-	X_over    = np.copy(X_nodup)
-	OUT_over  = np.copy(OUT_nodup)
-	
-	for i in range(N_cluster):
-		idx = np.where(cluster_label!=i)[0]
-		X_cluster   = np.delete(X_nodup,   idx, 0)
-		OUT_cluster = np.delete(OUT_nodup, idx, 0)
-		
-		for j in range(over_coef[i]-1):
-			X_over   = np.vstack((X_over,   X_cluster))
-			OUT_over = np.vstack((OUT_over, OUT_cluster))
-
+	X_over, OUT_over = do_oversampling(N_cluster, cluster_label,
+									   X_nodup, OUT_nodup, over_coef)
 
 	"""
-	Setting
+	Setting for batch processing
 	"""
-	train_ratio = 0.8
-	N_all   = len(X_over)
-	N_train = int(N_all*train_ratio)
-	N_test  = N_all-N_train
-	
-	batchsize = int(batchrate*N_train/100.0)
-	if batchsize < 10:
-		batchsize = 10
-	if batchsize > 100:
-		batchsize = 100
+	batchsize, N_all, N_train, N_valid = calc_batchsize(batchrate, train_ratio, X_over)
 
 	"""
-	Cross Validation: Separate training and test datas
+	Cross Validation
 	"""
-	rand = np.random.permutation(N_all)
-	X_train   = X_over[rand[0:N_train]]
-	X_test    = X_over[rand[N_train:N_all]]
-	OUT_train = OUT_over[rand[0:N_train]]
-	OUT_test  = OUT_over[rand[N_train:N_all]]
+	X_train, X_valid, OUT_train, OUT_valid = do_cross_validation(N_all, N_train,
+																 X_over, OUT_over)
 
 	#Converting training data to pytorch tensors
 	X_train = torch.from_numpy(X_train)
-	X_test = torch.from_numpy(X_test)
+	X_valid = torch.from_numpy(X_valid)
 	OUT_train = torch.from_numpy(OUT_train)
-	OUT_test = torch.from_numpy(OUT_test)
+	OUT_valid = torch.from_numpy(OUT_valid)
 
 	#Defining loss functions and parameter optimizers
 	loss_fn = torch.nn.MSELoss(reduction='sum')
@@ -167,7 +124,7 @@ def train(problem, model, N_Epoch, lr, batchrate):
 		###################
 		# Train the model #
 		###################
-		model.train()
+		model.to(device).train()
 		for i in range(0, N_train, batchsize):
 			optimizer.zero_grad()
 			OUT_pred_train = model(X_train[perm[i:i+batchsize]].float())
@@ -181,8 +138,8 @@ def train(problem, model, N_Epoch, lr, batchrate):
 		# Validate the model #
 		######################
 		model.eval()
-		OUT_pred_test = model(X_test[0:N_test].float())
-		loss = loss_fn(OUT_pred_test, OUT_test[0:N_test].float())
+		OUT_pred_valid = model(X_valid[0:N_valid].float())
+		loss = loss_fn(OUT_pred_valid, OUT_valid[0:N_valid].float())
 		valid_loss = loss.item()
 
 		#Average loss over an epoch
@@ -195,21 +152,10 @@ def train(problem, model, N_Epoch, lr, batchrate):
 		#Save the model when validation loss has decreased
 		if valid_loss <= valid_loss_min:
 			valid_loss_min=valid_loss
-			TrainedModel = model
+			torch.save(model, 'DATA/prediction/trained_model.pth')
 
 		if epoch>=50 and np.average(valid_lost[epoch-25:epoch])-np.average(valid_lost[epoch-50:epoch-25])>0:
 			break
-
-		# OUT_pred = model(X_t.float())
-		# loss = loss_fn(OUT_pred, OUT_t.float())
-		# if epoch % 200 == 99:
-		#     print(f'N_Epoch = {t}', f'Loss = {loss.item()}')
-		# optimizer.zero_grad()
-		# loss.backward()
-		# optimizer.step()
-	
-	#Returning a trained model
-	return TrainedModel
 
 def calculate(X, problem, model):
 	"""

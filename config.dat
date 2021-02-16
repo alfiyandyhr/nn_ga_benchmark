@@ -19,7 +19,7 @@ SAMPLING_METHOD = real_lhs
 POPULATION_SIZE = 100
 %
 % Problem Benchmark (zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, osy, custom)
-PROBLEM = zdt2
+PROBLEM = zdt1
 %
 %------------- OPTIMIZATION CONFIGURATION ON THE TRAINED NN MODEL -------------%
 %
@@ -61,7 +61,7 @@ ETA_MUTATION_GA = 20
 %
 % Stopping criteria (n_gen|n_iter, n_eval, igd, time, x_tol, f_tol)
 TERMINATION_GA = n_gen
-NUMBER_OF_GENERATION_GA = 100
+NUMBER_OF_GENERATION_GA = 150
 %
 %----------------------- NEURAL NETWORK CONFIGURATION --------------------------%
 %
@@ -74,7 +74,7 @@ N_EPOCH = 1000
 % Number of neurons in the hidden layer
 N_NEURON = 100
 %
-% Learning rate (for zdt3 and osy it's 2E-5)
+% Learning rate (for zdt1,zdt2, zdt3 and osy it's 2E-5)
 LEARNING_RATE = 2E-5
 %
 % Batch rate
@@ -82,6 +82,9 @@ BATCHRATE = 5
 %
 % Number of updates (initial training is not counted)
 NO_OF_UPDATES = 5
+%
+% The ratio of training data to all data
+TRAIN_RATIO = 0.8
 %
 %--------------------- PLOT CONFIGURATION OF NN SURROGATE ---------------------%
 %
@@ -111,9 +114,9 @@ PLOT_IGD_HISTORY_GA = FALSE
 %
 % What to plot for objective spaces? (TRUE, FALSE)
 PLOT_PARETO_FRONT_COMPARISON = TRUE
-PLOT_BEST_POPULATION_COMPARISON = FALSE
+PLOT_BEST_POPULATION_COMPARISON = TRUE
 PLOT_INITIAL_POPULATION_COMPARISON = FALSE
-PLOT_ALL_POPULATION_COMPARISON = TRUE
+PLOT_ALL_POPULATION_COMPARISON = FALSE
 %
 % What to plot for performance?
 PLOT_HV_HISTORY_COMPARISON = TRUE
