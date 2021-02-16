@@ -80,8 +80,7 @@ if use_nn:
 	print('\nAn initial trained model is obtained!\n')
 	print('--------------------------------------------------')
 
-	Model = torch.load('DATA/prediction/trained_model.pth')
-	TrainedModel_Problem = TrainedModelProblem(problem, Model)
+	TrainedModel_Problem = TrainedModelProblem(problem)
 
 	#####################################################################################################
 
@@ -160,7 +159,7 @@ if use_nn:
 			  batchrate=batchrate)
 
 		Model = torch.load('DATA/prediction/trained_model.pth')
-		TrainedModel_Problem = TrainedModelProblem(problem, Model)
+		TrainedModel_Problem = TrainedModelProblem(problem)
 
 		#Optimal solutions
 		print('--------------------------------------------------\n')
