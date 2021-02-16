@@ -13,6 +13,7 @@ if use_nn:
 	from ga import *
 	from NeuralNet import NeuralNet, train, calculate
 	from eval import evaluate
+	import torch
 
 if not use_nn:
 	from pymoo.algorithms.nsga2 import NSGA2
@@ -69,15 +70,18 @@ if use_nn:
 
 	print('Performing initial training...\n')
 
-	TrainedModel = train(problem=problem,
-						 model=Model,
-					     N_Epoch=N_Epoch,
-					     lr=lr,
-					     batchrate=batchrate)
+	train(problem=problem,
+		  model=Model,
+	      N_Epoch=N_Epoch,
+	      lr=lr,
+	      train_ratio=train_ratio,
+	      batchrate=batchrate)
 
 	print('\nAn initial trained model is obtained!\n')
 	print('--------------------------------------------------')
-	TrainedModel_Problem = TrainedModelProblem(problem, TrainedModel)
+
+	Model = torch.load('DATA/prediction/trained_model.pth')
+	TrainedModel_Problem = TrainedModelProblem(problem, Model)
 
 	#####################################################################################################
 
@@ -146,13 +150,17 @@ if use_nn:
 		#Training neural nets
 		print(f'Performing neural nets training, training={update+2}\n')
 
-		TrainedModel = train(problem=problem,
-							 model=TrainedModel,
-							 N_Epoch=N_Epoch,
-							 lr=lr,
-							 batchrate=batchrate)
+		Model = torch.load('DATA/prediction/trained_model.pth')
 
-		TrainedModel_Problem = TrainedModelProblem(problem, TrainedModel)
+		train(problem=problem,
+			  model=Model,
+			  N_Epoch=N_Epoch,
+			  lr=lr,
+			  train_ratio=train_ratio,
+			  batchrate=batchrate)
+
+		Model = torch.load('DATA/prediction/trained_model.pth')
+		TrainedModel_Problem = TrainedModelProblem(problem, Model)
 
 		#Optimal solutions
 		print('--------------------------------------------------\n')
