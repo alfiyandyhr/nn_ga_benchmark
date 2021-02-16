@@ -124,7 +124,7 @@ def train(problem,
 		###################
 		# Train the model #
 		###################
-		model.to(device).train()
+		model.train()
 		for i in range(0, N_train, batchsize):
 			optimizer.zero_grad()
 			OUT_pred_train = model(X_train[perm[i:i+batchsize]].float())
@@ -157,7 +157,7 @@ def train(problem,
 		if epoch>=50 and np.average(valid_lost[epoch-25:epoch])-np.average(valid_lost[epoch-50:epoch-25])>0:
 			break
 
-def calculate(X, problem, model):
+def calculate(X, problem):
 	"""
 	This function is used as the approximate function evaluation used in GA
 	(called in ga.py under class TrainedModelProblem)
@@ -180,11 +180,13 @@ def calculate(X, problem, model):
 	#Normalization of input
 	X = normalize(X, problem.xu, problem.xl, axis=0)
 
+	#Loading the model
+	model = torch.load('DATA/prediction/trained_model.pth')
+
 	#Trained model produces output
 	OUT = model(X.float())
 
 	#Denormalization of output
-
 	out = np.genfromtxt('DATA/training/OUT.dat',
 	skip_header=0, skip_footer=0, delimiter=' ')
 
