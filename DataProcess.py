@@ -1,14 +1,10 @@
 #Data process includes normalization, clustering, cross validation etc
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#2/16/2021
+#2/17/2021
 #####################################################################################################
-
-import numpy as np
-
-import matplotlib.pyplot as plt
-
-from sklearn.cluster import KMeans
+import torch
+from kmeans import KMeans
 
 def normalize(array, v_max, v_min, axis):
 	"""
@@ -63,50 +59,50 @@ def remove_duplicates(X, OUT, n_var):
 	This function will remove any individuals with a distance
 	in design space shorter than a specified value
 	"""
-
-	X_nodup = np.copy(X)
-	OUT_nodup = np.copy(OUT)
-
 	i = 0
 	while 1:
-		dist = np.sqrt((np.sum(np.power((X_nodup-X_nodup[i,:]), 2.0), axis=1))/n_var)
+		dist = torch.sqrt((torch.sum(torch.pow((X-X[i,:]), 2.0), axis=1))/n_var)
 		dist[i] = 1.0 #make sure the current individual doesnt get deleted
 		
-		#Location in which the dist is less than 0.001
-		idx = np.where(dist<0.001)[0]
+		#Location in which the dist is more than 0.001
+		idx = torch.where(dist>0.001)[0]
 
-		#Deleting the individual at location found above
-		X_nodup   = np.delete(X_nodup,   idx, axis=0)
-		OUT_nodup = np.delete(OUT_nodup, idx, axis=0)
+		#Picking the individual at location found above
+		X   = torch.index_select(X, 0, idx)
+		OUT = torch.index_select(OUT, 0, idx)
+
 		
-		if len(X_nodup) <= i+1:
+		if len(X) <= i+1:
 			break
 		else:
 			i = i+1
 
-	return X_nodup, OUT_nodup
+	return X, OUT
 
-def do_gap_statistics(X_nodup, n_var):
+def do_gap_statistics(X, n_var):
 	"""
 	This function uses gap statistics method to calculate the number of clusters
 	Input:
-		X_nodup: Training data for the input layer that has no duplication
+		X: Training data for the input layer
 		n_var: The number of design variables of the problem
 	Output:
 		N_cluster: the best number of cluster that maximizes gap
 	"""
+	
 	max_cluster = 30
 	trials = 10
-	count = np.zeros(max_cluster).astype(np.int32)
-	X_rnd = np.random.rand(len(X_nodup), n_var)
+	count = torch.zeros(max_cluster, dtype=torch.int32)
+	X_rnd = torch.randn(len(X), n_var)
 
 	for trial in range(trials):
-		gap 	 = np.zeros(max_cluster).astype(np.float32)
-		gap_diff = np.zeros(max_cluster).astype(np.float32)
+		gap 	 = torch.zeros(max_cluster, dtype=torch.float32)
+		gap_diff = torch.zeros(max_cluster, dtype=torch.float32)
 		for cluster in range(max_cluster):
-			kmeans       = KMeans(n_clusters=cluster+1).fit(X_nodup)
-			kmeans_rnd	 = KMeans(n_clusters=cluster+1).fit(X_rnd)
-			gap[cluster] = np.log(kmeans_rnd.inertia_/kmeans.inertia_)
+			kmeans       = KMeans(n_clusters=cluster+1, mode='euclidean')
+			labels 		 = kmeans.fit_predict(X)
+			kmeans_rnd	 = KMeans(n_clusters=cluster+1, mode='euclidean')
+			labels_rnd	 = kmeans_rnd.fit_predict(X_rnd)
+			gap[cluster] = torch.log(kmeans_rnd.inertia_(X_rnd,labels_rnd)/kmeans.inertia_(X,labels))
 
 			if cluster==0:
 				gap_diff[0] = 0.0
@@ -115,19 +111,19 @@ def do_gap_statistics(X_nodup, n_var):
 				if gap_diff[cluster] < 0.0:
 					break
 
-		count[np.argmax(gap)] = count[np.argmax(gap)] + 1
+		count[torch.argmax(gap)] = count[torch.argmax(gap)] + 1
 
-	N_cluster = np.argmax(count)+1
+	N_cluster = torch.argmax(count)+1
 	#+1 because cluster in the range(max_cluster) starts from zero
 	return N_cluster
 
-def do_KMeans_clustering(N_cluster, X_nodup):
+def do_KMeans_clustering(N_cluster, X):
 	"""
 	This function will use KMeans Clustering method to label training data
 	according to its proximity with a cluster
 	Input:
 		N_cluster: number of cluster estimated by Gap Statistics
-		X_nodup: Training data for the input layer that has no duplication
+		X: Training data for the input layer
 	Output:
 		cluster_label: label assigned to every point
 		over_coef: this will be used in the oversampling method to increase
@@ -135,17 +131,17 @@ def do_KMeans_clustering(N_cluster, X_nodup):
 	"""
 
 	#Instantiating kmeans object
-	kmeans = KMeans(n_clusters=N_cluster).fit(X_nodup)
-	cluster_label = kmeans.labels_
+	kmeans = KMeans(n_clusters=N_cluster, mode='euclidean', verbose=1)
+	cluster_label = kmeans.fit_predict(X)
 
 	#Calculating the size of cluster (number of data near the cluster centroid)
-	cluster_size = np.zeros(N_cluster).astype(np.int32)
+	cluster_size = torch.zeros(N_cluster, dtype=torch.int32)
 	for cluster in range(N_cluster):
-		cluster_size[cluster] = len(np.where(cluster_label==cluster)[0])
+		cluster_size[cluster] = len(torch.where(cluster_label==cluster)[0])
 
-	over_coef = np.zeros(N_cluster).astype(np.int32)
+	over_coef = torch.zeros(N_cluster, dtype=torch.int32)
 	for cluster in range(N_cluster):
-		over_coef[cluster] = np.copy((max(cluster_size))/cluster_size[cluster])
+		over_coef[cluster] = torch.clone((max(cluster_size))/cluster_size[cluster])
 		if over_coef[cluster] > 10:
 			over_coef[cluster] = 10
 
@@ -153,8 +149,7 @@ def do_KMeans_clustering(N_cluster, X_nodup):
 
 def do_oversampling(N_cluster,
 					cluster_label,
-					X_nodup,
-					OUT_nodup,
+					X, OUT,
 					over_coef):
 	"""
 	This function will use oversampling to prevent from overfitting
@@ -163,25 +158,25 @@ def do_oversampling(N_cluster,
 	Input:
 		N_cluster: number of cluster estimated by Gap Statistics
 		cluster_label: label assigned to every point
-		X_nodup: Training data for the input layer that has no duplication
-		OUT_nodup: Training data for the output layer that has no duplication
+		X: Training data for the input layer
+		OUT: Training data for the output layer
 		over_coef: this will be used in the oversampling method to increase
 				   number of points in the less densed cluster region
 	Output:
 		X_over: Training data for the input layer that has been oversampled
 		OUT_over: Training data for the output layer that has been oversampled
 	"""
-	X_over = np.copy(X_nodup)
-	OUT_over = np.copy(OUT_nodup)
+	X_over	 = torch.clone(X)
+	OUT_over = torch.clone(OUT)
 
 	for cluster in range(N_cluster):
-		idx = np.where(cluster_label!=cluster)[0]
-		X_cluster 	= np.delete(X_nodup, idx, axis=0)
-		OUT_cluster = np.delete(OUT_nodup, idx, axis=0)
+		idx = torch.where(cluster_label==cluster)[0]
+		X_cluster 	= torch.index_select(X, 0, idx)
+		OUT_cluster = torch.index_select(OUT, 0, idx)
 
 		for counter in range(over_coef[cluster]-1):
-			X_over	 = np.vstack((X_over, X_cluster))
-			OUT_over = np.vstack((OUT_over, OUT_cluster))
+			X_over	 = torch.vstack((X_over, X_cluster))
+			OUT_over = torch.vstack((OUT_over, OUT_cluster))
 
 	return X_over, OUT_over
 
@@ -232,7 +227,7 @@ def do_cross_validation(N_all, N_train, X_over, OUT_over):
 		OUT_valid: Validation set for the output layer
 	"""
 	#Initializing random permutation
-	rand = np.random.permutation(N_all)
+	rand = torch.randperm(N_all)
 
 	#Separating training set and validation set
 	X_train   = X_over[rand[0:N_train]]

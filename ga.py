@@ -41,7 +41,7 @@ class UserDefinedProblem(Problem):
 
 class TrainedModelProblem(Problem):
 	"""This is the trained neural net model"""
-	def __init__(self, problem):
+	def __init__(self, problem, device):
 		"""Inheritance from Problem class"""
 		self.n_var = problem.n_var
 		self.n_obj = problem.n_obj
@@ -49,6 +49,7 @@ class TrainedModelProblem(Problem):
 		self.xl = problem.xl
 		self.xu = problem.xu
 		self.problem = problem
+		self.device = device
 		
 		super().__init__(n_var=self.n_var,
 						 n_obj=self.n_obj,
@@ -57,7 +58,8 @@ class TrainedModelProblem(Problem):
 	
 	def _evaluate(self, X, out, *args, **kwargs):
 		"""Evaluation method"""
-		OUT = calculate(X=X, problem=self.problem)
+		OUT = calculate(X=X, problem=self.problem,
+						device=self.device)
 
 		F = OUT[:, 0:self.n_obj]
 		G = OUT[:, self.n_obj:(self.n_obj+self.n_constr)]

@@ -8,12 +8,12 @@ from performance import calc_hv
 from SaveOutput import save
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
 
 if use_nn:
 	from ga import *
 	from NeuralNet import NeuralNet, train, calculate
 	from eval import evaluate
-	import torch
 
 if not use_nn:
 	from pymoo.algorithms.nsga2 import NSGA2
@@ -22,6 +22,12 @@ if not use_nn:
 	from pymoo.factory import get_termination
 	from pymoo.optimize import minimize
 	import copy
+
+#Perform cuda computation if NVidia GPU card available
+if torch.cuda.is_available():
+	device = torch.device('cuda')
+else:
+	device = torch.device('cpu')
 
 #####################################################################################################
 if use_nn:
@@ -75,12 +81,13 @@ if use_nn:
 	      N_Epoch=N_Epoch,
 	      lr=lr,
 	      train_ratio=train_ratio,
-	      batchrate=batchrate)
+	      batchrate=batchrate,
+	      device=device)
 
 	print('\nAn initial trained model is obtained!\n')
 	print('--------------------------------------------------')
 
-	TrainedModel_Problem = TrainedModelProblem(problem)
+	TrainedModel_Problem = TrainedModelProblem(problem, device)
 
 	#####################################################################################################
 
@@ -149,17 +156,18 @@ if use_nn:
 		#Training neural nets
 		print(f'Performing neural nets training, training={update+2}\n')
 
-		Model = torch.load('DATA/prediction/trained_model.pth')
+		Model = torch.load('DATA/prediction/trained_model.pth').to(device)
 
 		train(problem=problem,
 			  model=Model,
 			  N_Epoch=N_Epoch,
 			  lr=lr,
 			  train_ratio=train_ratio,
-			  batchrate=batchrate)
+			  batchrate=batchrate,
+			  device=device)
 
-		Model = torch.load('DATA/prediction/trained_model.pth')
-		TrainedModel_Problem = TrainedModelProblem(problem)
+		Model = torch.load('DATA/prediction/trained_model.pth').to(device)
+		TrainedModel_Problem = TrainedModelProblem(problem, device)
 
 		#Optimal solutions
 		print('--------------------------------------------------\n')
