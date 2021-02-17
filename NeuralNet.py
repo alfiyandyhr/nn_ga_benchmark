@@ -9,7 +9,6 @@ from DataProcess import normalize, denormalize, remove_duplicates
 from DataProcess import do_gap_statistics
 from DataProcess import do_KMeans_clustering, do_oversampling
 from DataProcess import calc_batchsize, do_cross_validation
-from sklearn.cluster import KMeans
 
 
 class NeuralNet(torch.nn.Module):
@@ -46,7 +45,8 @@ def train(problem,
 		  N_Epoch,
 		  lr,
 		  train_ratio,
-		  batchrate):
+		  batchrate,
+		  device):
 	"""
 	Training routines
 	"""
@@ -59,9 +59,12 @@ def train(problem,
 
 	print('Processing the data... please wait :)\n')
 
+	X   = torch.from_numpy(X).float().to(device)
+	OUT = torch.from_numpy(OUT).float().to(device)
+
 	#Normalization of input and output
-	OUT_max = np.amax(OUT, axis=0)
-	OUT_min = np.amin(OUT, axis=0)
+	OUT_max = torch.amax(OUT, axis=0)
+	OUT_min = torch.amin(OUT, axis=0)
 
 	X = normalize(X, problem.xu, problem.xl, axis=0)
 	OUT = normalize(OUT, OUT_max, OUT_min, axis=1)
@@ -70,48 +73,42 @@ def train(problem,
 	Remove duplicates from training data
 	Duplicates of training data might add weights to them
 	"""
-	X_nodup, OUT_nodup = remove_duplicates(X, OUT, problem.n_var)
+	X, OUT = remove_duplicates(X, OUT, problem.n_var)
 
 	"""
 	Gap statistics
 	"""
-	N_cluster = do_gap_statistics(X_nodup, problem.n_var)
+	N_cluster = do_gap_statistics(X, problem.n_var)
 
 	"""
 	Clustering
 	"""
-	cluster_label, over_coef = do_KMeans_clustering(N_cluster, X_nodup)
+	cluster_label, over_coef = do_KMeans_clustering(N_cluster, X)
 
 	"""
 	Over sampling
 	"""
-	X_over, OUT_over = do_oversampling(N_cluster, cluster_label,
-									   X_nodup, OUT_nodup, over_coef)
+	X, OUT = do_oversampling(N_cluster, cluster_label,
+							 X, OUT, over_coef)
 
 	"""
 	Setting for batch processing
 	"""
-	batchsize, N_all, N_train, N_valid = calc_batchsize(batchrate, train_ratio, X_over)
+	batchsize, N_all, N_train, N_valid = calc_batchsize(batchrate, train_ratio, X)
 
 	"""
 	Cross Validation
 	"""
 	X_train, X_valid, OUT_train, OUT_valid = do_cross_validation(N_all, N_train,
-																 X_over, OUT_over)
-
-	#Converting training data to pytorch tensors
-	X_train = torch.from_numpy(X_train)
-	X_valid = torch.from_numpy(X_valid)
-	OUT_train = torch.from_numpy(OUT_train)
-	OUT_valid = torch.from_numpy(OUT_valid)
+																 X, OUT)
 
 	#Defining loss functions and parameter optimizers
 	loss_fn = torch.nn.MSELoss(reduction='sum')
 	optimizer = torch.optim.Adam(model.parameters(),lr=lr)
 
-	train_lost = np.zeros(N_Epoch)
-	valid_lost  = np.zeros(N_Epoch)
-	valid_loss_min = np.Inf
+	train_lost = torch.zeros(N_Epoch).to(device)
+	valid_lost  = torch.zeros(N_Epoch).to(device)
+	valid_loss_min = torch.tensor(float('inf'))
 
 	#Training
 	for epoch in range(N_Epoch):
@@ -119,12 +116,12 @@ def train(problem,
 		train_loss = 0.0
 		valid_loss = 0.0
 
-		perm = np.random.permutation(N_train)
+		perm = torch.randperm(N_train)
 
 		###################
 		# Train the model #
 		###################
-		model.train()
+		model.train().to(device)
 		for i in range(0, N_train, batchsize):
 			optimizer.zero_grad()
 			OUT_pred_train = model(X_train[perm[i:i+batchsize]].float())
@@ -137,7 +134,7 @@ def train(problem,
 		######################
 		# Validate the model #
 		######################
-		model.eval()
+		model.eval().to(device)
 		OUT_pred_valid = model(X_valid[0:N_valid].float())
 		loss = loss_fn(OUT_pred_valid, OUT_valid[0:N_valid].float())
 		valid_loss = loss.item()
@@ -154,10 +151,10 @@ def train(problem,
 			valid_loss_min=valid_loss
 			torch.save(model, 'DATA/prediction/trained_model.pth')
 
-		if epoch>=50 and np.average(valid_lost[epoch-25:epoch])-np.average(valid_lost[epoch-50:epoch-25])>0:
+		if epoch>=50 and torch.mean(valid_lost[epoch-25:epoch])-torch.mean(valid_lost[epoch-50:epoch-25])>0:
 			break
 
-def calculate(X, problem):
+def calculate(X, problem, device):
 	"""
 	This function is used as the approximate function evaluation used in GA
 	(called in ga.py under class TrainedModelProblem)
@@ -175,13 +172,13 @@ def calculate(X, problem):
 	because they are automatically converted by pytorch when
 	operations between tensors and numpy arrays happen
 	"""
-	X = torch.from_numpy(X)
+	X = torch.from_numpy(X).to(device)
 
 	#Normalization of input
 	X = normalize(X, problem.xu, problem.xl, axis=0)
 
 	#Loading the model
-	model = torch.load('DATA/prediction/trained_model.pth')
+	model = torch.load('DATA/prediction/trained_model.pth').to(device)
 
 	#Trained model produces output
 	OUT = model(X.float())
@@ -190,8 +187,10 @@ def calculate(X, problem):
 	out = np.genfromtxt('DATA/training/OUT.dat',
 	skip_header=0, skip_footer=0, delimiter=' ')
 
-	OUT_max = np.amax(out, axis=0)
-	OUT_min = np.amin(out, axis=0)
+	out = torch.from_numpy(out).to(device)
+
+	OUT_max = torch.amax(out, axis=0)
+	OUT_min = torch.amin(out, axis=0)
 
 	OUT = denormalize(OUT, OUT_max, OUT_min, axis=1)
 
