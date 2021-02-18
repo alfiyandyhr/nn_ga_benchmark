@@ -61,6 +61,15 @@ if hv_plot:
 	plt.legend(loc="upper right")
 	plt.show()
 
+if igd_plot_ga:
+	IGD = np.genfromtxt('OUTPUT/IGD.dat',
+		  skip_header=0, skip_footer=0, delimiter=' ')
+	plt.plot(IGD[:,1],IGD[:,0])
+	plt.title(f'IGD History of {problem_name.upper()}')
+	plt.xlabel("Number of true evaluations")
+	plt.ylabel("IGD value")
+	plt.show()
+
 #####################################################################################################
 
 if pf_plot_ga or initial_pop_plot_ga or best_pop_plot_ga:
@@ -103,8 +112,8 @@ if pf_plot_ga or initial_pop_plot_ga or best_pop_plot_ga:
 
 if hv_plot_ga:
 
-	HV = np.genfromtxt('OUTPUT/PURE_GA/HV.dat',
-		 skip_header=0, skip_footer=0, delimiter=' ')
+	HV  = np.genfromtxt('OUTPUT/PURE_GA/HV.dat',
+		  skip_header=0, skip_footer=0, delimiter=' ')
 
 	HV_pareto = np.genfromtxt('OUTPUT/PURE_GA/HV_pareto.dat')
 
@@ -114,6 +123,15 @@ if hv_plot_ga:
 	plt.xlabel("Number of true evaluations")
 	plt.ylabel("HV value")
 	plt.legend(loc="upper right")
+	plt.show()
+
+if igd_plot_ga:
+	IGD = np.genfromtxt('OUTPUT/PURE_GA/IGD.dat',
+		  skip_header=0, skip_footer=0, delimiter=' ')
+	plt.plot(IGD[:,1],IGD[:,0])
+	plt.title(f'IGD History of {problem_name.upper()}')
+	plt.xlabel("Number of true evaluations")
+	plt.ylabel("IGD value")
 	plt.show()
 
 #####################################################################################################
@@ -203,4 +221,18 @@ if hv_plot_comp:
 	plt.xlabel("Number of true evaluations")
 	plt.ylabel("HV value")
 	plt.legend(loc="upper right")
+	plt.show()
+
+if igd_plot_comp:
+	IGD = np.genfromtxt('OUTPUT/PURE_GA/IGD.dat',
+		  skip_header=0, skip_footer=0, delimiter=' ')
+	plt.plot(IGD[:,1],IGD[:,0],'r-',label=f'{algorithm_name.upper()}')
+
+	IGD = np.genfromtxt('OUTPUT/IGD.dat',
+		  skip_header=0, skip_footer=0, delimiter=' ')
+	plt.plot(IGD[:,1],IGD[:,0],'b-',label=f'NN+{algorithm_name.upper()}')
+
+	plt.title(f'IGD History of {problem_name.upper()}')
+	plt.xlabel("Number of true evaluations")
+	plt.ylabel("IGD value")
 	plt.show()
