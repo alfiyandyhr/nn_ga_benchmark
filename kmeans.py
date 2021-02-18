@@ -5,7 +5,6 @@
 #####################################################################################################
 import torch
 import math
-import numpy as np
 import matplotlib.pyplot as plt
 
 class KMeans:
@@ -149,7 +148,8 @@ class KMeans:
 		device = X.device.type
 
 		if centroids is None:
-			self.centroids = X[np.random.choice(batchsize, size=[self.n_clusters], replace=False)]
+			self.centroids = X[torch.randint(low=0,high=99,size=(self.n_clusters,),device=device)]
+		
 		else:
 			self.centroids = centroids
 
@@ -159,7 +159,7 @@ class KMeans:
 
 		for i in range(self.max_iter):
 			if self.minibatch is not None:
-				x = X[np.random.choice(batchsize, size=self.minibatch, replace=False)]
+				x = X[torch.randint(low=0,high=batchsize,size=(self.minibatch,),device=device)]
 			else:
 				x = X
 
@@ -239,7 +239,8 @@ class KMeans:
 		Return:
 			inertia: the mean squared distance
 		"""
-		inertia = torch.tensor(0.0)
+		device = X.device.type
+		inertia = torch.tensor(0.0).to(device)
 		for i in range(len(X)):
 			inertia += torch.sqrt(torch.sum(torch.pow((X[i] - self.centroids[labels[i]]),2)))
 
