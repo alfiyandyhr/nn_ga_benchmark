@@ -4,7 +4,7 @@
 #2/12/2021
 #####################################################################################################
 from LoadVars import *
-from performance import calc_hv
+from performance import calc_hv, calc_igd
 from SaveOutput import save
 import numpy as np
 import matplotlib.pyplot as plt
@@ -64,6 +64,8 @@ if use_nn:
 	#Initial performance
 	HV = [0.0]
 	HV += [calc_hv(parent_pop_eval[:,range(problem.n_obj)], ref=hv_ref)]
+	IGD = [1E-5]
+	IGD += [calc_igd(parent_pop_eval[:,range(problem.n_obj)], pareto_front)]
 
 	####################################################################################################
 
@@ -151,7 +153,8 @@ if use_nn:
 			save(f, parent_pop_eval, header=f'Generation {update+2}: F, G, CV')
 
 		#Performance measurement for each iteration
-		HV += [calc_hv(parent_pop.get('F')[:,range(problem.n_obj)], ref=hv_ref)]
+		HV  += [calc_hv(parent_pop.get('F')[:,range(problem.n_obj)], ref=hv_ref)]
+		IGD += [calc_igd(parent_pop.get('F')[:,range(problem.n_obj)], pareto_front)]
 
 		#Training neural nets
 		print(f'Performing neural nets training, training={update+2}\n')
@@ -198,7 +201,8 @@ if use_nn:
 		save(f, parent_pop_eval, header=f'Generation {number_of_updates+2}: F, G, CV') 
 
 	#Performance measurement for the last solutions
-	HV += [calc_hv(parent_pop_eval[:,range(problem.n_obj)], ref=hv_ref)]
+	HV  += [calc_hv(parent_pop_eval[:,range(problem.n_obj)], ref=hv_ref)]
+	IGD += [calc_igd(parent_pop_eval[:,range(problem.n_obj)], pareto_front)]
 
 	#Ideal performance (pareto front)
 	HV_pareto = [calc_hv(problem.pareto_front(), ref=hv_ref)]
@@ -212,9 +216,13 @@ if use_nn:
 	HV = np.array([HV]).T
 	HV_pareto = np.array(HV_pareto)
 	HV = np.concatenate((HV, true_eval),axis=1)
+	IGD[0] = IGD[1]
+	IGD = np.array([IGD]).T
+	IGD = np.concatenate((IGD, true_eval),axis=1)
 
 	save('OUTPUT/HV.dat', HV, header='HV History: HV value, true eval counters')
 	save('OUTPUT/HV_pareto.dat', HV_pareto, header=f'HV pareto of {problem_name.upper()}')
+	save('OUTPUT/IGD.dat', IGD, header='IGD History: IGD value, true eval counters')
 
 	print(f'NN based surrogate optimization is DONE! True eval = {pop_size*(number_of_updates+2)}\n')
 	#####################################################################################################
@@ -259,7 +267,8 @@ if not use_nn:
 
 	obj.setup(problem, termination, seed=1)
 
-	HV = [0.0]
+	HV  = [0.0]
+	IGD = [1E-5]
 
 	while obj.has_next():
 		obj.next()
@@ -291,9 +300,10 @@ if not use_nn:
 			save('OUTPUT/PURE_GA/final_pop_FGCV.dat', pop_eval, header=f'Generation {n_gen_ga}: F, G, CV')
 
 		#Performance measurement for every generation
-		HV += [calc_hv(pop_eval[:,range(problem.n_obj)], ref=hv_ref)]
+		HV  += [calc_hv(pop_eval[:,range(problem.n_obj)], ref=hv_ref)]
+		IGD += [calc_igd(pop_eval[:,range(problem.n_obj)], pareto_front)]
 
-		print(f"Generation = {obj.n_gen}; n_nds = {len(obj.opt)}; HV = {HV[obj.n_gen]}")
+		print(f"Generation = {obj.n_gen}; n_nds = {len(obj.opt)}; HV = {HV[obj.n_gen]}; IGD = {IGD[obj.n_gen]}")
 
 
 	#Ideal performance (pareto front)
@@ -305,12 +315,16 @@ if not use_nn:
 		true_eval += [pop_size*(update+1)]
 
 	true_eval = np.array([true_eval]).T
-	HV = np.array([HV]).T
+	HV  = np.array([HV]).T
 	HV_pareto = np.array(HV_pareto)
-	HV = np.concatenate((HV, true_eval),axis=1)
+	HV  = np.concatenate((HV, true_eval),axis=1)
+	IGD[0] = IGD[1]
+	IGD = np.array([IGD]).T
+	IGD = np.concatenate((IGD, true_eval),axis=1)
 
 	save('OUTPUT/PURE_GA/HV.dat', HV, header='HV History: HV value, true eval counters')
 	save('OUTPUT/PURE_GA/HV_pareto.dat', HV_pareto, header=f'HV pareto of {problem_name.upper()}')
+	save('OUTPUT/PURE_GA/IGD.dat', IGD, header='IGD History: IGD value, true eval counters')
 
 	print('--------------------------------------------------')
 	print('\nOptimal solutions are obtained!\n')

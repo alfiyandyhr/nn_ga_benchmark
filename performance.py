@@ -3,6 +3,7 @@
 #Tohoku University
 #2/12/2021
 #####################################################################################################
+import numpy as np
 
 def calc_hv(pop, ref):
 	"""
@@ -10,7 +11,7 @@ def calc_hv(pop, ref):
 
 	Input: The population at a given generation(numpy)
 	
-	Output: HV value at a given generation(float)
+	Output: HV value at a given generation(double)
 
 	"""
 	#Sorting the population properly
@@ -29,3 +30,25 @@ def calc_hv(pop, ref):
 		volume = 0.0
 		
 	return volume
+
+def calc_igd(pop, pf):
+	"""
+	This will calculate the inverted generational distance
+
+	Input:
+		pop: The population at a given generation(numpy)
+		pf: Pareto front of the problem
+	
+	Output: IGD value at a given generation(double)
+
+	"""	
+	sum_igd = 0.0
+	for indiv_pf in range(len(pf)):
+		min_igd = 1.0E5
+		for indiv in range(len(pop)):
+			igd = np.sqrt(np.power((pf[indiv_pf,0]-pop[indiv,0]),2)+np.power((pf[indiv_pf,0]-pop[indiv,1]),2)) 
+			if igd < min_igd:
+				min_igd = igd
+		sum_igd += min_igd
+
+	return sum_igd
