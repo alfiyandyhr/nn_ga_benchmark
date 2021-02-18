@@ -79,7 +79,7 @@ def remove_duplicates(X, OUT, n_var):
 
 	return X, OUT
 
-def do_gap_statistics(X, n_var):
+def do_gap_statistics(X, n_var, device):
 	"""
 	This function uses gap statistics method to calculate the number of clusters
 	Input:
@@ -91,12 +91,12 @@ def do_gap_statistics(X, n_var):
 	
 	max_cluster = 30
 	trials = 10
-	count = torch.zeros(max_cluster, dtype=torch.int32)
-	X_rnd = torch.randn(len(X), n_var)
+	count = torch.zeros(max_cluster, dtype=torch.int32).to(device)
+	X_rnd = torch.randn(len(X), n_var).to(device)
 
 	for trial in range(trials):
-		gap 	 = torch.zeros(max_cluster, dtype=torch.float32)
-		gap_diff = torch.zeros(max_cluster, dtype=torch.float32)
+		gap 	 = torch.zeros(max_cluster, dtype=torch.float32).to(device)
+		gap_diff = torch.zeros(max_cluster, dtype=torch.float32).to(device)
 		for cluster in range(max_cluster):
 			kmeans       = KMeans(n_clusters=cluster+1, mode='euclidean')
 			labels 		 = kmeans.fit_predict(X)
@@ -117,7 +117,7 @@ def do_gap_statistics(X, n_var):
 	#+1 because cluster in the range(max_cluster) starts from zero
 	return N_cluster
 
-def do_KMeans_clustering(N_cluster, X):
+def do_KMeans_clustering(N_cluster, X, device):
 	"""
 	This function will use KMeans Clustering method to label training data
 	according to its proximity with a cluster
@@ -135,13 +135,13 @@ def do_KMeans_clustering(N_cluster, X):
 	cluster_label = kmeans.fit_predict(X)
 
 	#Calculating the size of cluster (number of data near the cluster centroid)
-	cluster_size = torch.zeros(N_cluster, dtype=torch.int32)
+	cluster_size = torch.zeros(N_cluster, dtype=torch.int32).to(device)
 	for cluster in range(N_cluster):
 		cluster_size[cluster] = len(torch.where(cluster_label==cluster)[0])
 
-	over_coef = torch.zeros(N_cluster, dtype=torch.int32)
+	over_coef = torch.zeros(N_cluster, dtype=torch.int32).to(device)
 	for cluster in range(N_cluster):
-		over_coef[cluster] = torch.clone((max(cluster_size))/cluster_size[cluster])
+		over_coef[cluster] = torch.clone((max(cluster_size))/cluster_size[cluster]).to(device)
 		if over_coef[cluster] > 10:
 			over_coef[cluster] = 10
 
@@ -150,7 +150,8 @@ def do_KMeans_clustering(N_cluster, X):
 def do_oversampling(N_cluster,
 					cluster_label,
 					X, OUT,
-					over_coef):
+					over_coef,
+					device):
 	"""
 	This function will use oversampling to prevent from overfitting
 	Overfitting can happen when training data got stacked in a very densed region
@@ -166,13 +167,13 @@ def do_oversampling(N_cluster,
 		X_over: Training data for the input layer that has been oversampled
 		OUT_over: Training data for the output layer that has been oversampled
 	"""
-	X_over	 = torch.clone(X)
-	OUT_over = torch.clone(OUT)
+	X_over	 = torch.clone(X).to(device)
+	OUT_over = torch.clone(OUT).to(device)
 
 	for cluster in range(N_cluster):
 		idx = torch.where(cluster_label==cluster)[0]
-		X_cluster 	= torch.index_select(X, 0, idx)
-		OUT_cluster = torch.index_select(OUT, 0, idx)
+		X_cluster 	= torch.index_select(X, 0, idx).to(device)
+		OUT_cluster = torch.index_select(OUT, 0, idx).to(device)
 
 		for counter in range(over_coef[cluster]-1):
 			X_over	 = torch.vstack((X_over, X_cluster))

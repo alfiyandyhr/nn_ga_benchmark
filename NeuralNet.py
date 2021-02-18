@@ -66,7 +66,10 @@ def train(problem,
 	OUT_max = torch.amax(OUT, axis=0)
 	OUT_min = torch.amin(OUT, axis=0)
 
-	X = normalize(X, problem.xu, problem.xl, axis=0)
+	v_max = torch.from_numpy(problem.xu).to(device)
+	v_min = torch.from_numpy(problem.xl).to(device)
+
+	X = normalize(X, v_max, v_min, axis=0)
 	OUT = normalize(OUT, OUT_max, OUT_min, axis=1)
 
 	"""
@@ -78,18 +81,18 @@ def train(problem,
 	"""
 	Gap statistics
 	"""
-	N_cluster = do_gap_statistics(X, problem.n_var)
+	N_cluster = do_gap_statistics(X, problem.n_var, device)
 
 	"""
 	Clustering
 	"""
-	cluster_label, over_coef = do_KMeans_clustering(N_cluster, X)
+	cluster_label, over_coef = do_KMeans_clustering(N_cluster, X, device)
 
 	"""
 	Over sampling
 	"""
 	X, OUT = do_oversampling(N_cluster, cluster_label,
-							 X, OUT, over_coef)
+							 X, OUT, over_coef, device)
 
 	"""
 	Setting for batch processing
@@ -101,6 +104,12 @@ def train(problem,
 	"""
 	X_train, X_valid, OUT_train, OUT_valid = do_cross_validation(N_all, N_train,
 																 X, OUT)
+
+	if X_train.is_cuda and next(model.parameters()).is_cuda:
+		print('The training is carried out in GPU')
+	else:
+		print('The training is carried out in CPU')
+	print('-----------------------------------------------------------------')
 
 	#Defining loss functions and parameter optimizers
 	loss_fn = torch.nn.MSELoss(reduction='sum')
@@ -121,7 +130,7 @@ def train(problem,
 		###################
 		# Train the model #
 		###################
-		model.train().to(device)
+		model.train()
 		for i in range(0, N_train, batchsize):
 			optimizer.zero_grad()
 			OUT_pred_train = model(X_train[perm[i:i+batchsize]].float())
@@ -134,7 +143,7 @@ def train(problem,
 		######################
 		# Validate the model #
 		######################
-		model.eval().to(device)
+		model.eval()
 		OUT_pred_valid = model(X_valid[0:N_valid].float())
 		loss = loss_fn(OUT_pred_valid, OUT_valid[0:N_valid].float())
 		valid_loss = loss.item()
@@ -143,7 +152,7 @@ def train(problem,
 		train_lost[epoch] = train_loss/N_train
 		valid_lost[epoch] = valid_loss
 
-		if epoch % 50 == 0:
+		if epoch % 100 == 0:
 		    print(f'N_Epoch = {epoch}, Train Loss = {train_lost[epoch]}, Valid Loss = {valid_loss}')
 
 		#Save the model when validation loss has decreased
@@ -174,8 +183,11 @@ def calculate(X, problem, device):
 	"""
 	X = torch.from_numpy(X).to(device)
 
+	v_max = torch.from_numpy(problem.xu).to(device)
+	v_min = torch.from_numpy(problem.xl).to(device)
+
 	#Normalization of input
-	X = normalize(X, problem.xu, problem.xl, axis=0)
+	X = normalize(X, v_max, v_min, axis=0)
 
 	#Loading the model
 	model = torch.load('DATA/prediction/trained_model.pth').to(device)
@@ -194,7 +206,7 @@ def calculate(X, problem, device):
 
 	OUT = denormalize(OUT, OUT_max, OUT_min, axis=1)
 
-	return OUT.detach().numpy()
+	return OUT.cpu().detach().numpy()
 
 
 

@@ -29,6 +29,8 @@ if torch.cuda.is_available():
 else:
 	device = torch.device('cpu')
 
+#Erase the comment if you want to use CPU
+device = torch.device('cpu')
 #####################################################################################################
 if use_nn:
 	print('------------------------------------------------------')
@@ -74,7 +76,7 @@ if use_nn:
 
 	Model = NeuralNet(D_in=problem.n_var,
 					  H=N_Neuron, D=N_Neuron,
-					  D_out=problem.n_obj+problem.n_constr)
+					  D_out=problem.n_obj+problem.n_constr).to(device)
 
 	print('Performing initial training...\n')
 
@@ -169,7 +171,6 @@ if use_nn:
 			  batchrate=batchrate,
 			  device=device)
 
-		Model = torch.load('DATA/prediction/trained_model.pth').to(device)
 		TrainedModel_Problem = TrainedModelProblem(problem, device)
 
 		#Optimal solutions

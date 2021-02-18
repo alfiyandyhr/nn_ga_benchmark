@@ -19,7 +19,7 @@ SAMPLING_METHOD = real_lhs
 POPULATION_SIZE = 100
 %
 % Problem Benchmark (zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, osy, custom)
-PROBLEM = zdt1
+PROBLEM = osy
 %
 %------------- OPTIMIZATION CONFIGURATION ON THE TRAINED NN MODEL -------------%
 %
@@ -61,12 +61,12 @@ ETA_MUTATION_GA = 20
 %
 % Stopping criteria (n_gen|n_iter, n_eval, igd, time, x_tol, f_tol)
 TERMINATION_GA = n_gen
-NUMBER_OF_GENERATION_GA = 100
+NUMBER_OF_GENERATION_GA = 150
 %
 %----------------------- NEURAL NETWORK CONFIGURATION --------------------------%
 %
 % Neural Network Activation (TRUE,FALSE), if false, pure GA will be used
-USE_NN = TRUE
+USE_NN = FALSE
 %
 % Number of epoch(s)
 N_EPOCH = 1000
@@ -81,7 +81,7 @@ LEARNING_RATE = 2E-5
 BATCHRATE = 5
 %
 % Number of updates (initial training is not counted)
-NO_OF_UPDATES = 5
+NO_OF_UPDATES = 25
 %
 % The ratio of training data to all data
 TRAIN_RATIO = 0.8
