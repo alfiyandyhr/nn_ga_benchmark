@@ -16,10 +16,10 @@
 SAMPLING_METHOD = real_lhs
 %
 % Setting for population
-POPULATION_SIZE = 100
+POPULATION_SIZE = 200
 %
 % Problem Benchmark (zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, osy, custom)
-PROBLEM = osy
+PROBLEM = zdt1
 %
 %------------- OPTIMIZATION CONFIGURATION ON THE TRAINED NN MODEL -------------%
 %
@@ -66,13 +66,13 @@ NUMBER_OF_GENERATION_GA = 150
 %----------------------- NEURAL NETWORK CONFIGURATION --------------------------%
 %
 % Neural Network Activation (TRUE,FALSE), if false, pure GA will be used
-USE_NN = FALSE
+USE_NN = TRUE
 %
 % Number of epoch(s)
 N_EPOCH = 1000
 % 
 % Number of neurons in the hidden layer
-N_NEURON = 100
+N_NEURON = 512
 %
 % Learning rate (for zdt1,zdt2, zdt3 and osy it's 2E-5)
 LEARNING_RATE = 2E-5
@@ -114,11 +114,11 @@ PLOT_IGD_HISTORY_GA = FALSE
 %
 % What to plot for objective spaces? (TRUE, FALSE)
 PLOT_PARETO_FRONT_COMPARISON = FALSE
-PLOT_BEST_POPULATION_COMPARISON = FALSE
+PLOT_BEST_POPULATION_COMPARISON = TRUE
 PLOT_INITIAL_POPULATION_COMPARISON = FALSE
 PLOT_ALL_POPULATION_COMPARISON = FALSE
 %
 % What to plot for performance?
-PLOT_HV_HISTORY_COMPARISON = FALSE
-PLOT_IGD_HISTORY_COMPARISON = TRUE
+PLOT_HV_HISTORY_COMPARISON = TRUE
+PLOT_IGD_HISTORY_COMPARISON = FALSE
 %
