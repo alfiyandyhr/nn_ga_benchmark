@@ -23,6 +23,7 @@ def normalize(array, v_max, v_min, axis):
 	if axis == 0:
 		for row in range(n_rows):
 			array[row] = (array[row]-v_min)/(v_max-v_min)
+		# array = (array-v_min)/(v_max-v_min)
 
 	if axis == 1:
 		for col in range(n_cols):
@@ -91,6 +92,7 @@ def do_gap_statistics(X, n_var, device):
 	
 	max_cluster = 30
 	trials = 10
+	X = X.to(device)
 	count = torch.zeros(max_cluster, dtype=torch.int32).to(device)
 	X_rnd = torch.randn(len(X), n_var).to(device)
 
@@ -130,6 +132,8 @@ def do_KMeans_clustering(N_cluster, X, device):
 				   number of points in the less densed cluster region
 	"""
 
+	X = X.to(device)
+
 	#Instantiating kmeans object
 	kmeans = KMeans(n_clusters=N_cluster, mode='euclidean', verbose=1)
 	cluster_label = kmeans.fit_predict(X)
@@ -145,13 +149,12 @@ def do_KMeans_clustering(N_cluster, X, device):
 		if over_coef[cluster] > 10:
 			over_coef[cluster] = 10
 
-	return cluster_label, over_coef
+	return cluster_label.cpu(), over_coef.cpu()
 
 def do_oversampling(N_cluster,
 					cluster_label,
 					X, OUT,
-					over_coef,
-					device):
+					over_coef):
 	"""
 	This function will use oversampling to prevent from overfitting
 	Overfitting can happen when training data got stacked in a very densed region
@@ -167,13 +170,13 @@ def do_oversampling(N_cluster,
 		X_over: Training data for the input layer that has been oversampled
 		OUT_over: Training data for the output layer that has been oversampled
 	"""
-	X_over	 = torch.clone(X).to(device)
-	OUT_over = torch.clone(OUT).to(device)
+	X_over	 = torch.clone(X)
+	OUT_over = torch.clone(OUT)
 
 	for cluster in range(N_cluster):
 		idx = torch.where(cluster_label==cluster)[0]
-		X_cluster 	= torch.index_select(X, 0, idx).to(device)
-		OUT_cluster = torch.index_select(OUT, 0, idx).to(device)
+		X_cluster 	= torch.index_select(X, 0, idx)
+		OUT_cluster = torch.index_select(OUT, 0, idx)
 
 		for counter in range(over_coef[cluster]-1):
 			X_over	 = torch.vstack((X_over, X_cluster))

@@ -30,7 +30,7 @@ else:
 	device = torch.device('cpu')
 
 #Erase the comment if you want to use CPU
-device = torch.device('cpu')
+# device = torch.device('cpu')
 #####################################################################################################
 if use_nn:
 	print('------------------------------------------------------')

@@ -59,15 +59,15 @@ def train(problem,
 
 	print('Processing the data... please wait :)\n')
 
-	X   = torch.from_numpy(X).float().to(device)
-	OUT = torch.from_numpy(OUT).float().to(device)
+	X   = torch.from_numpy(X).float()
+	OUT = torch.from_numpy(OUT).float()
 
 	#Normalization of input and output
 	OUT_max = torch.amax(OUT, axis=0)
 	OUT_min = torch.amin(OUT, axis=0)
 
-	v_max = torch.from_numpy(problem.xu).to(device)
-	v_min = torch.from_numpy(problem.xl).to(device)
+	v_max = torch.from_numpy(problem.xu)
+	v_min = torch.from_numpy(problem.xl)
 
 	X = normalize(X, v_max, v_min, axis=0)
 	OUT = normalize(OUT, OUT_max, OUT_min, axis=1)
@@ -92,7 +92,7 @@ def train(problem,
 	Over sampling
 	"""
 	X, OUT = do_oversampling(N_cluster, cluster_label,
-							 X, OUT, over_coef, device)
+							 X, OUT, over_coef)
 
 	"""
 	Setting for batch processing
@@ -104,6 +104,12 @@ def train(problem,
 	"""
 	X_train, X_valid, OUT_train, OUT_valid = do_cross_validation(N_all, N_train,
 																 X, OUT)
+
+	X_train = X_train.to(device)
+	X_valid = X_valid.to(device)
+	OUT_train = OUT_train.to(device)
+	OUT_valid = OUT_valid.to(device)
+
 
 	if X_train.is_cuda and next(model.parameters()).is_cuda:
 		print('The training is carried out in GPU')
@@ -194,19 +200,20 @@ def calculate(X, problem, device):
 
 	#Trained model produces output
 	OUT = model(X.float())
+	OUT = OUT.cpu()
 
 	#Denormalization of output
 	out = np.genfromtxt('DATA/training/OUT.dat',
 	skip_header=0, skip_footer=0, delimiter=' ')
 
-	out = torch.from_numpy(out).to(device)
+	out = torch.from_numpy(out)
 
 	OUT_max = torch.amax(out, axis=0)
 	OUT_min = torch.amin(out, axis=0)
 
 	OUT = denormalize(OUT, OUT_max, OUT_min, axis=1)
 
-	return OUT.cpu().detach().numpy()
+	return OUT.detach().numpy()
 
 
 

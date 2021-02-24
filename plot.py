@@ -136,7 +136,7 @@ if igd_plot_ga:
 
 #####################################################################################################
 
-if pf_plot_comp or initial_pop_plot_comp or best_pop_plot_comp:
+if pf_plot_comp or initial_pop_plot_comp or best_pop_plot_comp or all_pop_plot_comp:
 	if all_pop_plot_comp:
 		all_pop = np.genfromtxt('OUTPUT/PURE_GA/all_pop_FGCV.dat', delimiter=' ')
 		all_pop_feasible = np.delete(all_pop, np.where(all_pop[:,-1]>0.0)[0], axis=0)
