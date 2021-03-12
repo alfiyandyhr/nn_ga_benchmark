@@ -1,7 +1,7 @@
 #Plotting the results
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#2/15/2021
+#3/12/2021
 #####################################################################################################
 from LoadVars import *
 import numpy as np
@@ -58,7 +58,7 @@ if hv_plot:
 	plt.title(f'HV History of {problem_name.upper()}')
 	plt.xlabel("Number of true evaluations")
 	plt.ylabel("HV value")
-	plt.legend(loc="upper right")
+	plt.legend(loc="center right")
 	plt.show()
 
 if igd_plot_ga:
@@ -107,7 +107,7 @@ if pf_plot_ga or initial_pop_plot_ga or best_pop_plot_ga:
 	plt.title(f'Objective functions space of {problem_name.upper()}')
 	plt.xlabel("F1")
 	plt.ylabel("F2")
-	plt.legend(loc="upper right")
+	plt.legend(loc="center right")
 	plt.show()
 
 if hv_plot_ga:
@@ -122,7 +122,7 @@ if hv_plot_ga:
 	plt.title(f'HV History of {problem_name.upper()}')
 	plt.xlabel("Number of true evaluations")
 	plt.ylabel("HV value")
-	plt.legend(loc="upper right")
+	plt.legend(loc="center right")
 	plt.show()
 
 if igd_plot_ga:
@@ -220,7 +220,7 @@ if hv_plot_comp:
 	plt.title(f'HV History of {problem_name.upper()}')
 	plt.xlabel("Number of true evaluations")
 	plt.ylabel("HV value")
-	plt.legend(loc="upper right")
+	plt.legend(loc="center right")
 	plt.show()
 
 if igd_plot_comp:
@@ -235,4 +235,5 @@ if igd_plot_comp:
 	plt.title(f'IGD History of {problem_name.upper()}')
 	plt.xlabel("Number of true evaluations")
 	plt.ylabel("IGD value")
+	plt.legend(loc="center right")
 	plt.show()

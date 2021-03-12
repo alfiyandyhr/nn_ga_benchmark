@@ -4,6 +4,7 @@
 #2/16/2021
 #####################################################################################################
 import torch
+import torch.nn.functional as F
 import numpy as np
 from DataProcess import normalize, denormalize, remove_duplicates
 from DataProcess import do_gap_statistics
@@ -39,6 +40,14 @@ class NeuralNet(torch.nn.Module):
 		    h_relu = self.hidden_layer1(h_relu).tanh()
 		phi = self.hidden_layer2(h_relu)
 		return phi
+
+	# def forward(self, x):
+	# 	"""Forward propagation"""
+	# 	x = F.relu(self.input_layer(x))
+	# 	x = F.relu(self.hidden_layer1(x))
+	# 	x = F.relu(self.hidden_layer2(x))
+
+	# 	return self.output_layer(x)
 
 def train(problem,
 		  model,

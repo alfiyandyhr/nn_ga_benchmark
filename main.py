@@ -1,7 +1,7 @@
 #NN-based surrogate optimization for benchmark problems
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#2/12/2021
+#3/12/2021
 #####################################################################################################
 from LoadVars import *
 from performance import calc_hv, calc_igd
@@ -24,13 +24,13 @@ if not use_nn:
 	import copy
 
 #Perform cuda computation if NVidia GPU card available
-if torch.cuda.is_available():
-	device = torch.device('cuda')
-else:
-	device = torch.device('cpu')
+# if torch.cuda.is_available():
+# 	device = torch.device('cuda')
+# else:
+# 	device = torch.device('cpu')
 
 #Erase the comment if you want to use CPU
-# device = torch.device('cpu')
+device = torch.device('cpu')
 #####################################################################################################
 if use_nn:
 	print('------------------------------------------------------')
@@ -65,9 +65,9 @@ if use_nn:
 
 	#Initial performance
 	HV = [0.0]
-	HV += [calc_hv(parent_pop_eval[:,range(problem.n_obj)], ref=hv_ref)]
+	HV += [calc_hv(parent_pop_eval, ref=hv_ref)]
 	IGD = [1E-5]
-	IGD += [calc_igd(parent_pop_eval[:,range(problem.n_obj)], pareto_front)]
+	IGD += [calc_igd(parent_pop_eval, pareto_front)]
 
 	####################################################################################################
 
@@ -155,8 +155,8 @@ if use_nn:
 			save(f, parent_pop_eval, header=f'Generation {update+2}: F, G, CV')
 
 		#Performance measurement for each iteration
-		HV  += [calc_hv(parent_pop.get('F')[:,range(problem.n_obj)], ref=hv_ref)]
-		IGD += [calc_igd(parent_pop.get('F')[:,range(problem.n_obj)], pareto_front)]
+		HV  += [calc_hv(parent_pop_eval, ref=hv_ref)]
+		IGD += [calc_igd(parent_pop_eval, pareto_front)]
 
 		#Training neural nets
 		print(f'Performing neural nets training, training={update+2}\n')
@@ -202,11 +202,12 @@ if use_nn:
 		save(f, parent_pop_eval, header=f'Generation {number_of_updates+2}: F, G, CV') 
 
 	#Performance measurement for the last solutions
-	HV  += [calc_hv(parent_pop_eval[:,range(problem.n_obj)], ref=hv_ref)]
-	IGD += [calc_igd(parent_pop_eval[:,range(problem.n_obj)], pareto_front)]
+	HV  += [calc_hv(parent_pop_eval, ref=hv_ref)]
+	IGD += [calc_igd(parent_pop_eval, pareto_front)]
 
 	#Ideal performance (pareto front)
-	HV_pareto = [calc_hv(problem.pareto_front(), ref=hv_ref)]
+	zeros = np.zeros((len(problem.pareto_front()),1))
+	HV_pareto = [calc_hv(np.concatenate((problem.pareto_front(),zeros),axis=1), ref=hv_ref)]
 
 	#True evaluation counters
 	true_eval = [0]
@@ -274,9 +275,9 @@ if not use_nn:
 	while obj.has_next():
 		obj.next()
 
-		pop_eval = obj.pop.get('F')
-		pop_G = obj.pop.get('G')
-		pop_CV = obj.pop.get('CV')
+		pop_eval = obj.opt.get('F')
+		pop_G = obj.opt.get('G')
+		pop_CV = obj.opt.get('CV')
 
 		if pop_G[0] is not None:
 			pop_eval = np.concatenate((pop_eval, pop_G, pop_CV), axis=1)
@@ -285,30 +286,31 @@ if not use_nn:
 			pop_eval = np.concatenate((pop_eval, pop_G, pop_CV), axis=1)
 
 		if obj.n_gen == 1:
-			save('OUTPUT/PURE_GA/initial_pop_X.dat', obj.pop.get('X'), header='Generation 1: X')
+			save('OUTPUT/PURE_GA/initial_pop_X.dat', obj.opt.get('X'), header='Generation 1: X')
 			save('OUTPUT/PURE_GA/initial_pop_FGCV.dat', pop_eval, header='Generation 1: F, G, CV')
-			save('OUTPUT/PURE_GA/all_pop_X.dat', obj.pop.get('X'), header='Generation 1: X')
+			save('OUTPUT/PURE_GA/all_pop_X.dat', obj.opt.get('X'), header='Generation 1: X')
 			save('OUTPUT/PURE_GA/all_pop_FGCV.dat', pop_eval, header='Generation 1: F, G, CV')
 
 		if obj.n_gen != 1:
 			with open('OUTPUT/PURE_GA/all_pop_X.dat', 'a') as f:
-				save(f, obj.pop.get('X'), header=f'Generation {obj.n_gen}: X')
+				save(f, obj.opt.get('X'), header=f'Generation {obj.n_gen}: X')
 			with open('OUTPUT/PURE_GA/all_pop_FGCV.dat', 'a') as f:
 				save(f, pop_eval, header=f'Generation {obj.n_gen}: F, G, CV')
 
 		if obj.n_gen == n_gen_ga:
-			save('OUTPUT/PURE_GA/final_pop_X.dat', obj.pop.get('X'), header=f'Generation {n_gen_ga}: X')
+			save('OUTPUT/PURE_GA/final_pop_X.dat', obj.opt.get('X'), header=f'Generation {n_gen_ga}: X')
 			save('OUTPUT/PURE_GA/final_pop_FGCV.dat', pop_eval, header=f'Generation {n_gen_ga}: F, G, CV')
 
 		#Performance measurement for every generation
-		HV  += [calc_hv(pop_eval[:,range(problem.n_obj)], ref=hv_ref)]
-		IGD += [calc_igd(pop_eval[:,range(problem.n_obj)], pareto_front)]
+		HV  += [calc_hv(pop_eval, ref=hv_ref)]
+		IGD += [calc_igd(pop_eval, pareto_front)]
 
 		print(f"Generation = {obj.n_gen}; n_nds = {len(obj.opt)}; HV = {HV[obj.n_gen]}; IGD = {IGD[obj.n_gen]}")
 
 
 	#Ideal performance (pareto front)
-	HV_pareto = [calc_hv(problem.pareto_front(), ref=hv_ref)]
+	zeros = np.zeros((len(problem.pareto_front()),1))
+	HV_pareto = [calc_hv(np.concatenate((problem.pareto_front(),zeros),axis=1), ref=hv_ref)]
 
 	#True evaluation counters
 	true_eval = [0]
