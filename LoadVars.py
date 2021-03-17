@@ -2,7 +2,7 @@
 #Outputting variables as python variables loaded in main.py
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#2/16/2021
+#3/15/2021
 #####################################################################################################
 
 def load_vars():
@@ -81,10 +81,10 @@ hv_plot_comp = eval(config['PLOT_HV_HISTORY_COMPARISON'].title())
 igd_plot_comp = eval(config['PLOT_IGD_HISTORY_COMPARISON'].title())
 
 if problem_name == 'osy':
-	hv_ref = [-18.8, 83.2]
+	hv_ref = [[-350, 0.0],[-18.8, 83.2]]
 
-if problem_name == 'zdt2':
-	hv_ref = [2.0, 2.0]
+if problem_name == 'zdt3':
+	hv_ref = [[0.0, -1.0],[1.1, 1.1]]
 
-if problem_name in ['zdt1', 'zdt3', 'zdt4', 'zdt5', 'zdt6']:
-	hv_ref = [1.1, 1.1]
+if problem_name in ['zdt1','zdt2']:
+	hv_ref = [[0.0, 0.0],[1.1, 1.1]]

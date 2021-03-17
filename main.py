@@ -1,7 +1,7 @@
 #NN-based surrogate optimization for benchmark problems
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#3/12/2021
+#3/15/2021
 #####################################################################################################
 from LoadVars import *
 from performance import calc_hv, calc_igd
@@ -42,7 +42,7 @@ if use_nn:
 
 	#Defining problem
 	problem = define_problem(problem_name)
-	pareto_front = problem.pareto_front()
+	pareto_front = np.copy(problem.pareto_front())
 	save('OUTPUT/pareto_front.dat', problem.pareto_front(), header=f'Pareto Front of {problem_name}')
 	print(f'The benchmark problem: {problem_name.upper()}\n')
 
@@ -67,7 +67,7 @@ if use_nn:
 	HV = [0.0]
 	HV += [calc_hv(parent_pop_eval, ref=hv_ref)]
 	IGD = [1E-5]
-	IGD += [calc_igd(parent_pop_eval, pareto_front)]
+	IGD += [calc_igd(parent_pop_eval, ref=hv_ref, pfs=pareto_front)]
 
 	####################################################################################################
 
@@ -156,7 +156,7 @@ if use_nn:
 
 		#Performance measurement for each iteration
 		HV  += [calc_hv(parent_pop_eval, ref=hv_ref)]
-		IGD += [calc_igd(parent_pop_eval, pareto_front)]
+		IGD += [calc_igd(parent_pop_eval, ref=hv_ref, pfs=pareto_front)]
 
 		#Training neural nets
 		print(f'Performing neural nets training, training={update+2}\n')
@@ -203,11 +203,11 @@ if use_nn:
 
 	#Performance measurement for the last solutions
 	HV  += [calc_hv(parent_pop_eval, ref=hv_ref)]
-	IGD += [calc_igd(parent_pop_eval, pareto_front)]
+	IGD += [calc_igd(parent_pop_eval, ref=hv_ref, pfs=pareto_front)]
 
 	#Ideal performance (pareto front)
-	zeros = np.zeros((len(problem.pareto_front()),1))
-	HV_pareto = [calc_hv(np.concatenate((problem.pareto_front(),zeros),axis=1), ref=hv_ref)]
+	zeros = np.zeros((len(pareto_front),1))
+	HV_pareto = [calc_hv(np.concatenate((pareto_front,zeros),axis=1), ref=hv_ref)]
 
 	#True evaluation counters
 	true_eval = [0]
@@ -239,7 +239,7 @@ if not use_nn:
 
 	#Defining problem
 	problem = get_problem(problem_name)
-	pareto_front = problem.pareto_front()
+	pareto_front = np.copy(problem.pareto_front())
 	save('OUTPUT/PURE_GA/pareto_front.dat', problem.pareto_front(), header=f'Pareto Front of {problem_name}')
 	print(f'The benchmark problem: {problem_name.upper()}\n')
 
@@ -303,14 +303,14 @@ if not use_nn:
 
 		#Performance measurement for every generation
 		HV  += [calc_hv(pop_eval, ref=hv_ref)]
-		IGD += [calc_igd(pop_eval, pareto_front)]
+		IGD += [calc_igd(pop_eval, ref=hv_ref, pfs=pareto_front)]
 
 		print(f"Generation = {obj.n_gen}; n_nds = {len(obj.opt)}; HV = {HV[obj.n_gen]}; IGD = {IGD[obj.n_gen]}")
 
 
 	#Ideal performance (pareto front)
-	zeros = np.zeros((len(problem.pareto_front()),1))
-	HV_pareto = [calc_hv(np.concatenate((problem.pareto_front(),zeros),axis=1), ref=hv_ref)]
+	zeros = np.zeros((len(pareto_front),1))
+	HV_pareto = [calc_hv(np.concatenate((pareto_front,zeros),axis=1), ref=hv_ref)]
 
 	#True evaluation counters
 	true_eval = [0]

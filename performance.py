@@ -1,69 +1,90 @@
 #Performance Indicator Measurement
 #Coded by Alfiyandy Hariansyah
 #Tohoku University
-#3/12/2021
+#3/17/2021
 #####################################################################################################
 from pymoo.util.nds.fast_non_dominated_sort import fast_non_dominated_sort
+from pymoo.factory import get_problem
 
 import numpy as np
 
-def calc_hv(pop, ref):
+def calc_hv(pops, ref):
 	"""
 	This will calculate Hypervolumes from the input array
 
 	Input:
-		- pop: The population at a given generation(numpy)
+		- pops: The population at a given generation(numpy)
 			   It has the first objective in the first column
 			   and the second objective in the second column
-		- ref: Reference point
+		- ref: Reference points
 	
 	Output: HV value at a given generation(double)
 
 	"""
-	#Sorting the population properly (from best in obj1)
+	#Copying pops so that it does not alter the original
+	pop = np.copy(pops)
+
+	#Sorting the population properly (from best in obj2)
 	pop = pop[pop[:,0].argsort()]
 
 	fronts = fast_non_dominated_sort(pop[:,0:2])
 
 	front_1 = fronts[0]
 
+	pop = pop[front_1]
+	
 	volume = 0.0
 
-	for indiv in front_1:
+	#Normalization
+	for indiv in range(len(pop)):
+		pop[indiv,0] = (pop[indiv,0]-ref[0][0])/(ref[1][0]-ref[0][0])
+		pop[indiv,1] = (pop[indiv,1]-ref[0][1])/(ref[1][1]-ref[0][1])
+
+	for indiv in range(len(pop)):
 		if pop[indiv,-1] == 0.0:
-			if indiv == front_1[-1]:
-				volume += (ref[0] - pop[indiv,0]) * (ref[1] - pop[indiv,1])
+			if indiv == len(pop)-1:
+				volume += (1.0 - pop[indiv,0]) * (1.0 - pop[indiv,1])
+				if volume < 0.0:
+					volume = 0.0
 				break
 			else:
-				volume += (ref[1] - pop[indiv,1]) * (pop[indiv+1,0] - pop[indiv,0])
-
-	if volume < 0.0:
-		volume = 0.0
+				volume += (1.0 - pop[indiv,1]) * (pop[indiv+1,0] - pop[indiv,0])
+				if volume < 0.0:
+					volume = 0.0
 		
 	return volume
 
-def calc_igd(pop, pf):
+def calc_igd(pops, ref, pfs):
 	"""
 	This will calculate the inverted generational distance
 
 	Input:
-		pop: The population at a given generation(numpy)
-		pf: Pareto front of the problem
+		pops: The population at a given generation(numpy)
+		ref: Reference points
+		pfs: Pareto front of the problem
 	
 	Output: IGD value at a given generation(double)
 
-	"""
-	fronts = fast_non_dominated_sort(pop[:,0:2])
+	"""	
+	#Copying pops and pfs so that it does not alter the original
+	pop = np.copy(pops)
+	pf = np.copy(pfs)
 
-	front_1 = fronts[0]
-
-	sum_igd = 0.0
+	#Normalization
+	for indiv in range(len(pop)):
+		pop[indiv,0] = (pop[indiv,0]-ref[0][0])/(ref[1][0]-ref[0][0])
+		pop[indiv,1] = (pop[indiv,1]-ref[0][1])/(ref[1][1]-ref[0][1])
 
 	for indiv_pf in range(len(pf)):
+		pf[indiv_pf,0] = (pf[indiv_pf,0]-ref[0][0])/(ref[1][0]-ref[0][0])
+		pf[indiv_pf,1] = (pf[indiv_pf,1]-ref[0][1])/(ref[1][1]-ref[0][1])
+
+	sum_igd = 0.0
+	for indiv_pf in range(len(pf)):
 		min_igd = 1.0E5
-		for indiv in front_1:
+		for indiv in range(len(pop)):
 			if pop[indiv,-1] == 0.0:
-				igd = np.sqrt(np.power((pf[indiv_pf,0]-pop[indiv,0]),2)+np.power((pf[indiv_pf,0]-pop[indiv,1]),2)) 
+				igd = np.sqrt(np.power((pf[indiv_pf,0]-pop[indiv,0]),2)+np.power((pf[indiv_pf,1]-pop[indiv,1]),2)) 
 				if igd < min_igd:
 					min_igd = igd
 		sum_igd += min_igd

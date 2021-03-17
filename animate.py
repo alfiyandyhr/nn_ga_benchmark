@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
 
 fig = plt.figure()
-# ax = plt.axes(xlim=(-350,50),ylim=(-10,100))
-ax = plt.axes(xlim=(-0.1,1.1),ylim=(-1,6))
+# ax = plt.axes(xlim=(-1600,50),ylim=(-10,300))
+ax = plt.axes(xlim=(-0.1,1.1),ylim=(-0.5,7))
 ln1, = plt.plot([], [], 'bo', markersize=2, label='NN+GA')
 ln2, = plt.plot([], [], 'ro', markersize=2, label='NSGA2')
 ln3, = plt.plot([], [], 'k-', label='Pareto Front')
