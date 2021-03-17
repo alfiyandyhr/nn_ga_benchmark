@@ -3,7 +3,7 @@
 % Neural-Network-based Surrogate Optimization of Benchmark Test Problems       %
 % Author: Alfiyandy Hariansyah                                                 %
 % Institution: Institute of Fluid Science, Tohoku University                   %
-% Date: 2/15/2021                                                              %
+% Date: 3/15/2021                                                              %
 % Deep Learning Framework: PyTorch                                             %
 % Optimization: Genetic Algorithms (Framework: pymoo)                          %
 % Language: Python                                                             %
@@ -19,7 +19,7 @@ SAMPLING_METHOD = real_lhs
 POPULATION_SIZE = 100
 %
 % Problem Benchmark (zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, osy, custom)
-PROBLEM = osy
+PROBLEM = zdt1
 %
 %------------- OPTIMIZATION CONFIGURATION ON THE TRAINED NN MODEL -------------%
 %
@@ -81,7 +81,7 @@ LEARNING_RATE = 2E-5
 BATCHRATE = 5
 %
 % Number of updates (initial training is not counted)
-NO_OF_UPDATES = 25
+NO_OF_UPDATES = 5
 %
 % The ratio of training data to all data
 TRAIN_RATIO = 0.8
@@ -95,8 +95,8 @@ PLOT_INITIAL_POPULATION = FALSE
 PLOT_ALL_POPULATION = FALSE
 %
 % What to plot for performance?
-PLOT_HV_HISTORY = TRUE
-PLOT_IGD_HISTORY = TRUE
+PLOT_HV_HISTORY = FALSE
+PLOT_IGD_HISTORY = FALSE
 %
 %---------------------- PLOT CONFIGURATION OF PURE GA -------------------------%
 %
@@ -119,6 +119,6 @@ PLOT_INITIAL_POPULATION_COMPARISON = FALSE
 PLOT_ALL_POPULATION_COMPARISON = FALSE
 %
 % What to plot for performance?
-PLOT_HV_HISTORY_COMPARISON = TRUE
-PLOT_IGD_HISTORY_COMPARISON = TRUE
+PLOT_HV_HISTORY_COMPARISON = FALSE
+PLOT_IGD_HISTORY_COMPARISON = FALSE
 %

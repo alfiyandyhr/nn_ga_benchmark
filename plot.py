@@ -26,9 +26,9 @@ if pf_plot or initial_pop_plot or best_pop_plot:
 		initial_pop = np.genfromtxt('OUTPUT/initial_pop_FGCV.dat', delimiter=' ')
 		initial_pop_feasible = np.delete(initial_pop, np.where(initial_pop[:,-1]>0.0), axis=0)
 		initial_pop_infeasible = np.delete(initial_pop, np.where(initial_pop[:,-1]==0.0), axis=0)
-		if len(initil_pop_infeasible)>0:
+		if len(initial_pop_infeasible)>0:
 			plt.plot(initial_pop_infeasible[:,0], initial_pop_infeasible[:,1], 'ro', label='Initial solutions - infeasible')
-		if len(all_pop_feasible)>0:
+		if len(initial_pop_feasible)>0:
 			plt.plot(initial_pop_feasible[:,0], initial_pop_feasible[:,1], 'bo', label='Initial solutions - feasible')
 	
 	if best_pop_plot:
@@ -61,7 +61,7 @@ if hv_plot:
 	plt.legend(loc="center right")
 	plt.show()
 
-if igd_plot_ga:
+if igd_plot:
 	IGD = np.genfromtxt('OUTPUT/IGD.dat',
 		  skip_header=0, skip_footer=0, delimiter=' ')
 	plt.plot(IGD[:,1],IGD[:,0])
@@ -162,7 +162,7 @@ if pf_plot_comp or initial_pop_plot_comp or best_pop_plot_comp or all_pop_plot_c
 		initial_pop = np.genfromtxt('OUTPUT/PURE_GA/initial_pop_FGCV.dat', delimiter=' ')
 		initial_pop_feasible = np.delete(initial_pop, np.where(initial_pop[:,-1]>0.0), axis=0)
 		initial_pop_infeasible = np.delete(initial_pop, np.where(initial_pop[:,-1]==0.0), axis=0)
-		if len(initil_pop_infeasible)>0:
+		if len(initial_pop_infeasible)>0:
 			plt.plot(initial_pop_infeasible[:,0], initial_pop_infeasible[:,1], 'rx', label=f'{algorithm_name.upper()} - Initial solutions - infeasible')
 		if len(all_pop_feasible)>0:
 			plt.plot(initial_pop_feasible[:,0], initial_pop_feasible[:,1], 'ro', label=f'{algorithm_name.upper()} - Initial solutions - feasible')
