@@ -275,9 +275,9 @@ if not use_nn:
 	while obj.has_next():
 		obj.next()
 
-		pop_eval = obj.opt.get('F')
-		pop_G = obj.opt.get('G')
-		pop_CV = obj.opt.get('CV')
+		pop_eval = obj.pop.get('F')
+		pop_G = obj.pop.get('G')
+		pop_CV = obj.pop.get('CV')
 
 		if pop_G[0] is not None:
 			pop_eval = np.concatenate((pop_eval, pop_G, pop_CV), axis=1)
@@ -286,19 +286,19 @@ if not use_nn:
 			pop_eval = np.concatenate((pop_eval, pop_G, pop_CV), axis=1)
 
 		if obj.n_gen == 1:
-			save('OUTPUT/PURE_GA/initial_pop_X.dat', obj.opt.get('X'), header='Generation 1: X')
+			save('OUTPUT/PURE_GA/initial_pop_X.dat', obj.pop.get('X'), header='Generation 1: X')
 			save('OUTPUT/PURE_GA/initial_pop_FGCV.dat', pop_eval, header='Generation 1: F, G, CV')
-			save('OUTPUT/PURE_GA/all_pop_X.dat', obj.opt.get('X'), header='Generation 1: X')
+			save('OUTPUT/PURE_GA/all_pop_X.dat', obj.pop.get('X'), header='Generation 1: X')
 			save('OUTPUT/PURE_GA/all_pop_FGCV.dat', pop_eval, header='Generation 1: F, G, CV')
 
 		if obj.n_gen != 1:
 			with open('OUTPUT/PURE_GA/all_pop_X.dat', 'a') as f:
-				save(f, obj.opt.get('X'), header=f'Generation {obj.n_gen}: X')
+				save(f, obj.pop.get('X'), header=f'Generation {obj.n_gen}: X')
 			with open('OUTPUT/PURE_GA/all_pop_FGCV.dat', 'a') as f:
 				save(f, pop_eval, header=f'Generation {obj.n_gen}: F, G, CV')
 
 		if obj.n_gen == n_gen_ga:
-			save('OUTPUT/PURE_GA/final_pop_X.dat', obj.opt.get('X'), header=f'Generation {n_gen_ga}: X')
+			save('OUTPUT/PURE_GA/final_pop_X.dat', obj.pop.get('X'), header=f'Generation {n_gen_ga}: X')
 			save('OUTPUT/PURE_GA/final_pop_FGCV.dat', pop_eval, header=f'Generation {n_gen_ga}: F, G, CV')
 
 		#Performance measurement for every generation
