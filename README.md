@@ -39,16 +39,19 @@ This code depends on and has been tested in the following environments:
 ## Results
 
 <p float="center">
-  <img src="PLOT/ZDT1/zdt1_gif.gif" width="40%"/>
+  <img src="PLOT/ZDT1/zdt1_gif.gif" width="45%"/>
 </p>
+&nbsp; &nbsp; &nbsp; &nbsp;
 <p float="center">
-  <img src="PLOT/ZDT2/zdt2_gif.gif" width="40%"/>
+  <img src="PLOT/ZDT2/zdt2_gif.gif" width="45%"/>
 </p>
+&nbsp; &nbsp; &nbsp; &nbsp;
 <p float="center">
-  <img src="PLOT/ZDT3/zdt3_gif.gif" width="40%"/>
+  <img src="PLOT/ZDT3/zdt3_gif.gif" width="45%"/>
 </p>
+&nbsp; &nbsp; &nbsp; &nbsp;
 <p float="center">
-  <img src="PLOT/OSY/osy_small_gif.gif" width="40%"/>
+  <img src="PLOT/OSY/osy_small_gif.gif" width="45%"/>
 </p>
 
 ## Contact
