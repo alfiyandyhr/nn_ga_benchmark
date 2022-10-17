@@ -1,8 +1,8 @@
 import torch
 import numpy as np
-from pymoo.factory import get_problem
-from pymoo.model.population import pop_from_array_or_individual
-from pymoo.model.evaluator import Evaluator
+from pymoo.problems import get_problem
+from pymoo.core.population import pop_from_array_or_individual
+from pymoo.core.evaluator import Evaluator
 import matplotlib.pyplot as plt
 from performance import calc_hv
 
