@@ -10,7 +10,7 @@ https://doi.org/10.1299/jsmecmd.2021.34.235
 [[ResearchGate]](https://www.researchgate.net/publication/363653550_On_the_use_of_a_multilayer_perceptron_based_surrogate_model_in_evolutionary_optimization)
 
 
-## Requirements:
+## Requirements
 
 This code depends on and has been tested in the following environments:
 - `Python 3.9.6`
@@ -20,8 +20,9 @@ This code depends on and has been tested in the following environments:
 - `pymoo-0.6.0`
 - `torch-1.12.1`
 
-## Routines:
+## Routines
 
+0. Read `Readme.txt`
 1. Edit the config file `config.dat`
       * if you want to use NN+GA, set line 69 to `USE_NN = TRUE`
       * if you want to use PURE_GA, set line 69 to `USE_NN = FALSE`
@@ -34,3 +35,15 @@ This code depends on and has been tested in the following environments:
 5. Execute `python animate.py`
 6. See the output files in the `OUTPUT` folder
 7. See the GIF animation in the `PLOT` folder
+
+## Results
+
+<p float="center">
+  <img src="PLOT/ZDT1/zdt1_gif.gif" width="100%"/>
+</p>
+
+## Contact
+
+The original code was developed by Koji Shimoyama and Taiga Kato and was written in C. This code is adapted with new features and techniques such as configurability using `config.dat`, clustering techniques using `kmeans.py`, data processing in `DataProcess.py`, plotting animation in `animate.py`, and the latest deep learning library using PyTorch in `NeuralNet.py`. This code was fully written in Python and is maintained by Alfiyandy Hariansyah.
+
+email: muhammad.alfiyandy.hariansyah.s8 (at) dc (dot) tohoku (dot) ac (dot) jp
