@@ -40,12 +40,12 @@ This code depends on and has been tested in the following environments:
 
 <table>
 	<tr>
-		<td><p float="center"><img src="PLOT/ZDT1/zdt1_gif.gif" width="95%"></p></td>
-		<td><p float="center"><img src="PLOT/ZDT2/zdt2_gif.gif" width="95%"/></p></td>
+		<td><img src="PLOT/ZDT1/zdt1_gif.gif" width="100%"></td>
+		<td><img src="PLOT/ZDT2/zdt2_gif.gif" width="100%"/></td>
 	</tr>
 	<tr>
-		<td><p float="center"><img src="PLOT/ZDT3/zdt3_gif.gif" width="95%"/></p></td>
-		<td><p float="center"><img src="PLOT/OSY/osy_small_gif.gif" width="95%"/></p></td>
+		<td><img src="PLOT/ZDT3/zdt3_gif.gif" width="100%"/></td>
+		<td><img src="PLOT/OSY/osy_small_gif.gif" width="100%"/></td>
 	</tr>
 </table>
 
