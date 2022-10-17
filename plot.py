@@ -3,7 +3,7 @@
 #Tohoku University
 #3/12/2021
 #####################################################################################################
-from LoadVars import *
+from nnga.LoadVars import *
 import numpy as np
 import matplotlib.pyplot as plt
 

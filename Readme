@@ -2,7 +2,7 @@ This is the Readme file for NN+GA code for the benchmark problems.
 
 Author: Alfiyandy Hariansyah
 Institution: Institute of Fluid Science, Tohoku University                   
-Date: 10/16/2022    
+Date: 10/18/2022    
 Deep Learning Framework: PyTorch        
 Optimization: Genetic Algorithms (Framework: pymoo)   
 Language: Python
@@ -27,6 +27,9 @@ All the routines are executed in the main.py file
 
 Plot:
 > to execute: 'python plot.py'
+
+Animation:
+> to execute: 'python animate.py'
 ---------------------------------------------------------------------------
 
 About the output files
@@ -39,6 +42,7 @@ OUTPUT/all_true_eval.dat    : the objectives, constraints, and CVs of all true e
 OUTPUT/final_pop_X.dat      : the design variables of the final population (best)
 OUTPUT/final_pop_FGCV.dat   : the objectives, constraints, and CVs of the final population (best)
 OUTPUT/HV.dat               : the hypervolume values history
+OUTPUT/IGD.dat              : the inverted generational distance values history
 
 OUTPUT/PURE_GA/initial_pop_X.dat    : the design variables of the initial population
 OUTPUT/PURE_GA/initial_pop_FGCV.dat : the objectives, constraints, and CVs of the initial population
@@ -48,11 +52,11 @@ OUTPUT/PURE_GA/all_true_eval.dat    : the objectives, constraints, and CVs of al
 OUTPUT/PURE_GA/final_pop_X.dat      : the design variables of the final population (best)
 OUTPUT/PURE_GA/final_pop_FGCV.dat   : the objectives, constraints, and CVs of the final population (best)
 OUTPUT/PURE_GA/HV.dat               : the hypervolume values history
+OUTPUT/PURE_GA/IGD.dat              : the inverted generational distance values history
 
 DATA/training/X.dat         : the design variables input (fed to the input layer of NN)
 DATA/training/OUT.dat       : the functions to be modeled (fed to the output layer of NN)
 
-DATA/prediction/X_best.dat  : the best design variables found by GA on the current NN model
 DATA/prediction/trained_model.pth : this contains the neural net architecture with its weights
 ---------------------------------------------------------------------------
 
@@ -82,11 +86,14 @@ Defining the optimization problem
 
 About the files
 ---------------------------------------------------------------------------
-config.dat: the user interface of input variables
+In the main directory:
 
+config.dat: the user interface of input variables
 main.py: the main executable file (>python main.py)
 plot.py: the plot executable file (>python plot.py)
 animate.py: the animation plot of all population dynamics (>python animate.py)
+
+In the module nnga:
 
 LoadVars.py: the file responsible for reading the 'config.dat'
 ga.py: the file responsible for optimization routines (pymoo framework)
@@ -94,7 +101,6 @@ NeuralNet.py: the file responsible for the NN models (architectures, training, c
 DataProcess.py: the file responsible for treating the data before being fed to the neural net
 kmeans.py: the file that conducts kmeans clustering used in DataProcess.py
 SaveOutput.py: the file responsible for saving the output files
-
 eval.py: the file responsible for the true objective and constraint evaluations
 performance.py: the file that assesses the performance using HV and IGD
 test_model.py: the playground to test the trained NN model
@@ -106,7 +112,7 @@ Routines (STEP BY STEP)
 0. Edit the config file ('config.dat')
       > if you want to use NN+GA, set line 69 to ('USE_NN = TRUE')
       > if you want to use PURE_GA, set line 60 to ('USE_NN = FALSE')
-1. Edit the class 'NeuralNet' in the file 'NeuralNet.py' to build
+1. Edit the class 'NeuralNet' in the file 'nnga/NeuralNet.py' to build
    the neural net structure depending on the problem (trial-and-error)
    by default: 3 hidden layers with two layers sharing the same weights
 2. Execute 'python main.py'

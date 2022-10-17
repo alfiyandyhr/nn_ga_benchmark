@@ -66,7 +66,7 @@ NUMBER_OF_GENERATION_GA = 150
 %----------------------- NEURAL NETWORK CONFIGURATION --------------------------%
 %
 % Neural Network Activation (TRUE,FALSE), if false, pure GA will be used
-USE_NN = FALSE
+USE_NN = TRUE
 %
 % Number of epoch(s)
 N_EPOCH = 1000

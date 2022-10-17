@@ -3,17 +3,17 @@
 #Tohoku University
 #3/15/2021
 #####################################################################################################
-from LoadVars import *
-from performance import calc_hv, calc_igd, monotonous_IGD
-from SaveOutput import save
+from nnga.LoadVars import *
+from nnga.performance import calc_hv, calc_igd, monotonous_IGD
+from nnga.SaveOutput import save
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
 
 if use_nn:
-	from ga import *
-	from NeuralNet import NeuralNet, train, calculate
-	from eval import evaluate
+	from nnga.ga import *
+	from nnga.NeuralNet import NeuralNet, train, calculate
+	from nnga.eval import evaluate
 
 if not use_nn:
 	from pymoo.algorithms.moo.nsga2 import NSGA2

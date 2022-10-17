@@ -27,8 +27,8 @@ def init():
 	ln1.set_data([],[])
 	ln2.set_data([],[])
 	ln3.set_data(pareto_front[:,0],pareto_front[:,1])
-	ln4.set_data([],[])
-	ln5.set_data([],[])
+	# ln4.set_data([],[])
+	# ln5.set_data([],[])
 
 
 def update(i):
