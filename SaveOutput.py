@@ -14,7 +14,6 @@ def save(f, array,
 		>saving best_pop_X.dat
 		etc 
 	"""
-
 	np.savetxt(f, array,
 			   delimiter=delimiter,
 			   newline=newline,
