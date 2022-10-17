@@ -53,4 +53,4 @@ This code depends on and has been tested in the following environments:
 
 The original code was developed by Koji Shimoyama and Taiga Kato and was written in C. This code is adapted with new features and techniques such as reconfigurability using `config.dat`, clustering techniques using `kmeans.py`, data processing in `DataProcess.py`, plotting animation in `animate.py`, and the latest deep learning library using PyTorch in `NeuralNet.py`. This code was entirely written in Python and is maintained by Alfiyandy Hariansyah.
 
-email: muhammad.alfiyandy.hariansyah.s8 (at) dc (dot) tohoku (dot) ac (dot) jp
+email: alfiyandyhariansyah (at) gmail.com
