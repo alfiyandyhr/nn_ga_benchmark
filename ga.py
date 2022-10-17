@@ -5,20 +5,24 @@
 #####################################################################################################
 import numpy as np
 
-from pymoo.model.problem import Problem
-from pymoo.model.population import Population, pop_from_array_or_individual
-from pymoo.model.sampling import Sampling
-from pymoo.model.evaluator import Evaluator
-from pymoo.algorithms.nsga2 import NSGA2, RankAndCrowdingSurvival
+from pymoo.core.problem import Problem
+from pymoo.core.population import Population, pop_from_array_or_individual
+from pymoo.core.sampling import Sampling
+from pymoo.core.evaluator import Evaluator
+from pymoo.algorithms.moo.nsga2 import NSGA2, RankAndCrowdingSurvival
 from pymoo.optimize import minimize
-from pymoo.factory import get_problem, get_sampling, get_selection
-from pymoo.factory import get_crossover, get_mutation, get_termination
+from pymoo.operators.sampling.lhs import LHS
+from pymoo.operators.selection.tournament import TournamentSelection
+from pymoo.operators.crossover.sbx import SBX
+from pymoo.operators.mutation.pm import PolynomialMutation
+from pymoo.factory import get_problem
+from pymoo.termination import get_termination
 
 from NeuralNet import calculate
 #####################################################################################################
 #Disable warning
-from pymoo.configuration import Configuration
-Configuration.show_compile_hint = False
+# from pymoo.configuration import Configuration
+# Configuration.show_compile_hint = False
 
 class UserDefinedProblem(Problem):
 	"""A custom problem defined by users"""
@@ -45,7 +49,8 @@ class TrainedModelProblem(Problem):
 		"""Inheritance from Problem class"""
 		self.n_var = problem.n_var
 		self.n_obj = problem.n_obj
-		self.n_constr = problem.n_constr
+		self.n_eq_constr = problem.n_eq_constr
+		self.n_ieq_constr = problem.n_ieq_constr
 		self.xl = problem.xl
 		self.xu = problem.xu
 		self.problem = problem
@@ -97,16 +102,20 @@ def define_sampling(name):
 def define_selection(name):
 		"""Returning the python object of selection operator"""	
 		if name == 'tournament':
-			selection = get_selection(name, func_comp='real_tournament')
+			selection = TournamentSelection
 		return selection
 
 def define_crossover(name, prob, eta):
-		"""Returning the python of the crossover operator"""	
-		return get_crossover(name, prob=prob, eta=eta)
+		"""Returning the python of the crossover operator"""
+		if name == 'sbx':
+			crossover = SBX(prob=prob, eta=eta)
+		return crossover
 
 def define_mutation(name, eta):
-		"""Returning the python object of the mutation operator"""	
-		return get_mutation(name, eta=eta)
+		"""Returning the python object of the mutation operator"""
+		if name == 'pm':
+			mutation = PolynomialMutation(eta=eta)	
+		return mutation
 
 class StoppingCriteria():
 	"""Instance for the termination"""
@@ -133,8 +142,7 @@ def set_population(n_individuals):
 def do_survival(problem, merged_pop, n_survive):
 	"""This will merge two pops and return the best surviving pop"""
 	Survival = RankAndCrowdingSurvival()
-
-	surviving_pop = Survival.do(problem, merged_pop, n_survive)
+	surviving_pop = Survival.do(problem=problem, pop=merged_pop, n_survive=n_survive)
 
 	surviving_pop_eval = surviving_pop.get('F')
 	surviving_pop_G = surviving_pop.get('G')

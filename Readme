@@ -2,7 +2,7 @@ This is the Readme file for NN+GA code for the benchmark problems.
 
 Author: Alfiyandy Hariansyah
 Institution: Institute of Fluid Science, Tohoku University                   
-Date: 3/20/2021    
+Date: 10/16/2022    
 Deep Learning Framework: PyTorch        
 Optimization: Genetic Algorithms (Framework: pymoo)   
 Language: Python
@@ -12,7 +12,7 @@ Requirements
 ---------------------------------------------------------------------------
 This code depends on the following python libraries:
 > numpy (https://numpy.org/install/)
-> pandas (https://pandas.pydata.org/getting_started.html)
+> scipy (https://scipy.org/install/)
 > matplotlib (https://matplotlib.org/stable/users/installing.html)
 > pymoo (https://pymoo.org/installation.html)
 > pytorch (https://pytorch.org/get-started/locally/)
@@ -115,7 +115,7 @@ Routines (STEP BY STEP)
 ---------------------------------------------------------------------------
 
 Acknowledgements
-> Kato-kun and Shimoyama-sensei at IFS, TU
+> Kato-san and Shimoyama-sensei at IFS, TU
 > Julian and Deb at MSU Coin Lab
 
 Please feel free to send questions/comments/doubts/suggestions/bugs

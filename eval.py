@@ -3,7 +3,7 @@
 #Tohoku University
 #2/15/2021
 #####################################################################################################
-from pymoo.model.evaluator import Evaluator
+from pymoo.core.evaluator import Evaluator
 import numpy as np
 
 def evaluate(problem, pop):

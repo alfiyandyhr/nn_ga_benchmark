@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Plot
-if pf_plot or initial_pop_plot or best_pop_plot:
+if pf_plot or initial_pop_plot or best_pop_plot or all_pop_plot or all_true_eval_plot:
 	if all_pop_plot:
 		all_pop = np.genfromtxt('OUTPUT/all_pop_FGCV.dat', delimiter=' ')
 		all_pop_feasible = np.delete(all_pop, np.where(all_pop[:,-1]>0.0)[0], axis=0)
@@ -39,6 +39,15 @@ if pf_plot or initial_pop_plot or best_pop_plot:
 			plt.plot(best_pop_infeasible[:,0], best_pop_infeasible[:,1], 'ro', label='Best optimal solutions - infeasible')
 		if len(best_pop_feasible)>0:	
 			plt.plot(best_pop_feasible[:,0], best_pop_feasible[:,1], 'bo', label='Best optimal solutions - feasible')
+
+	if all_true_eval_plot:
+		all_true_eval = np.genfromtxt('OUTPUT/all_true_eval_FGCV.dat', delimiter=' ')
+		all_true_eval_feasible = np.delete(all_true_eval, np.where(all_true_eval[:,-1]>0.0)[0], axis=0)
+		all_true_eval_infeasible = np.delete(all_true_eval, np.where(all_true_eval[:,-1]==0.0)[0], axis=0)
+		if len(all_true_eval_infeasible)>0:
+			plt.plot(all_true_eval_infeasible[:,0],all_true_eval_infeasible[:,1],'ro', markersize=4, label='All solutions - infeasible')
+		if len(all_true_eval_feasible)>0:
+			plt.plot(all_true_eval_feasible[:,0],all_true_eval_feasible[:,1],'bo', markersize=4, label='All solutions - feasible')
 	
 	plt.title(f'Objective functions space of {problem_name.upper()}')
 	plt.xlabel("F1")
@@ -72,7 +81,7 @@ if igd_plot:
 
 #####################################################################################################
 
-if pf_plot_ga or initial_pop_plot_ga or best_pop_plot_ga:
+if all_pop_plot_ga or pf_plot_ga or initial_pop_plot_ga or best_pop_plot_ga or all_true_eval_plot_ga:
 	if all_pop_plot_ga:
 		all_pop = np.genfromtxt('OUTPUT/PURE_GA/all_pop_FGCV.dat', delimiter=' ')
 		all_pop_feasible = np.delete(all_pop, np.where(all_pop[:,-1]>0.0)[0], axis=0)
@@ -103,11 +112,20 @@ if pf_plot_ga or initial_pop_plot_ga or best_pop_plot_ga:
 			plt.plot(best_pop_infeasible[:,0], best_pop_infeasible[:,1], 'ro', label='Best optimal solutions - infeasible')
 		if len(best_pop_feasible)>0:	
 			plt.plot(best_pop_feasible[:,0], best_pop_feasible[:,1], 'bo', label='Best optimal solutions - feasible')
+
+	if all_true_eval_plot_ga:
+		all_true_eval = np.genfromtxt('OUTPUT/PURE_GA/all_true_eval_FGCV.dat', delimiter=' ')
+		all_true_eval_feasible = np.delete(all_true_eval, np.where(all_true_eval[:,-1]>00), axis=0)
+		all_true_eval_infeasible = np.delete(all_true_eval, np.where(all_true_eval[:,-1]==0.0), axis=0)
+		if len(all_true_eval_infeasible)>0:
+			plt.plot(all_true_eval_infeasible[:,0], all_true_eval_infeasible[:,1], 'ro', markersize=3, label='All solutions - infeasible')
+		if len(all_true_eval_feasible)>0:	
+			plt.plot(all_true_eval_feasible[:,0], all_true_eval_feasible[:,1], 'bo', markersize=3, label='All solutions - feasible')
 	
 	plt.title(f'Objective functions space of {problem_name.upper()}')
 	plt.xlabel("F1")
 	plt.ylabel("F2")
-	plt.legend(loc="center right")
+	plt.legend(loc="upper right")
 	plt.show()
 
 if hv_plot_ga:
@@ -191,7 +209,24 @@ if pf_plot_comp or initial_pop_plot_comp or best_pop_plot_comp or all_pop_plot_c
 			plt.plot(best_pop_infeasible[:,0], best_pop_infeasible[:,1], 'bx', label=f'NN+{algorithm_name.upper()} - Best optimal solutions - infeasible')
 		if len(best_pop_feasible)>0:	
 			plt.plot(best_pop_feasible[:,0], best_pop_feasible[:,1], 'bo', label=f'NN+{algorithm_name.upper()} - Best optimal solutions - feasible')
-	
+
+	if all_true_eval_plot_comp:
+		all_true_eval = np.genfromtxt('OUTPUT/PURE_GA/all_true_eval_FGCV.dat', delimiter=' ')
+		all_true_eval_feasible = np.delete(all_true_eval, np.where(all_true_eval[:,-1]>00), axis=0)
+		all_true_eval_infeasible = np.delete(all_true_eval, np.where(all_true_eval[:,-1]==0.0), axis=0)
+		if len(all_true_eval_infeasible)>0:
+			plt.plot(all_true_eval_infeasible[:,0], all_true_eval_infeasible[:,1], 'rx', markersize=3, label='NSGA2 Infeasible')
+		if len(all_true_eval_feasible)>0:	
+			plt.plot(all_true_eval_feasible[:,0], all_true_eval_feasible[:,1], 'ro', markersize=3, label='NSGA2 Feasible')
+
+		all_true_eval = np.genfromtxt('OUTPUT/all_true_eval_FGCV.dat', delimiter=' ')
+		all_true_eval_feasible = np.delete(all_true_eval, np.where(all_true_eval[:,-1]>0.0)[0], axis=0)
+		all_true_eval_infeasible = np.delete(all_true_eval, np.where(all_true_eval[:,-1]==0.0)[0], axis=0)
+		if len(all_true_eval_infeasible)>0:
+			plt.plot(all_true_eval_infeasible[:,0],all_true_eval_infeasible[:,1],'bx', markersize=3, label='NN+NSGA2 Infeasible')
+		if len(all_true_eval_feasible)>0:
+			plt.plot(all_true_eval_feasible[:,0],all_true_eval_feasible[:,1],'bo', markersize=3, label='NN+NSGA2 Feasible')
+
 	plt.title(f'Objective functions space of {problem_name.upper()}')
 	plt.xlabel("F1")
 	plt.ylabel("F2")

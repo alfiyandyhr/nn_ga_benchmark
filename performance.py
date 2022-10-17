@@ -4,7 +4,6 @@
 #3/17/2021
 #####################################################################################################
 from pymoo.util.nds.fast_non_dominated_sort import fast_non_dominated_sort
-from pymoo.factory import get_problem
 
 import numpy as np
 
@@ -90,3 +89,13 @@ def calc_igd(pops, ref, pfs):
 		sum_igd += min_igd
 
 	return sum_igd
+
+def monotonous_IGD(IGD):
+	"""
+	This function will make the IGD values
+	monotonously decreasing for easier analysis
+	"""
+	for i in range(len(IGD)-1):
+		if IGD[i+1,0] > IGD[i,0]:
+			IGD[i+1,0] = IGD[i,0]
+	return IGD

@@ -12,13 +12,13 @@
 %
 %-------------------------- DESIGN OF EXPERIMENT ------------------------------%
 %
-% Initial sampling (real_lhs, real_random, bin_lhs, bin_random)
-SAMPLING_METHOD = real_lhs
+% Initial sampling (lhs, rnd)
+SAMPLING_METHOD = lhs
 %
 % Setting for population
 POPULATION_SIZE = 100
 %
-% Problem Benchmark (zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, osy, custom)
+% Problem Benchmark (zdt1, zdt2, zdt3, osy, custom)
 PROBLEM = zdt1
 %
 %------------- OPTIMIZATION CONFIGURATION ON THE TRAINED NN MODEL -------------%
@@ -29,13 +29,13 @@ OPTIMIZATION_ALGORITHM = nsga2
 % Selection operator (random, tournament)
 SELECTION_OPERATOR = tournament
 %
-% Crossover operator (real_sbx, int_sbx, read_de, perm_ox, perm_erx)
-CROSSOVER_OPERATOR = real_sbx
+% Crossover operator (sbx)
+CROSSOVER_OPERATOR = sbx
 CROSSOVER_PROBABILITY = 0.9
 ETA_CROSSOVER = 15
 %
-% Mutation operator (none, real_pm, int_pm, bin_bit-flip, perm_inv)
-MUTATION_OPERATOR = real_pm
+% Mutation operator (none, pm)
+MUTATION_OPERATOR = pm
 ETA_MUTATION = 20
 %
 % Stopping criteria (n_gen|n_iter, n_eval, igd, time, x_tol, f_tol)
@@ -50,13 +50,13 @@ OPTIMIZATION_ALGORITHM_GA = nsga2
 % Selection operator (random, tournament)
 SELECTION_OPERATOR_GA = tournament
 %
-% Crossover operator (real_sbx, int_sbx, read_de, perm_ox, perm_erx)
-CROSSOVER_OPERATOR_GA = real_sbx
+% Crossover operator (sbx)
+CROSSOVER_OPERATOR_GA = sbx
 CROSSOVER_PROBABILITY_GA = 0.9
 ETA_CROSSOVER_GA = 15
 %
-% Mutation operator (none, real_pm, int_pm, bin_bit-flip, perm_inv)
-MUTATION_OPERATOR_GA = real_pm
+% Mutation operator (none, pm)
+MUTATION_OPERATOR_GA = pm
 ETA_MUTATION_GA = 20
 %
 % Stopping criteria (n_gen|n_iter, n_eval, igd, time, x_tol, f_tol)
@@ -93,6 +93,7 @@ PLOT_PARETO_FRONT = FALSE
 PLOT_BEST_POPULATION = FALSE
 PLOT_INITIAL_POPULATION = FALSE
 PLOT_ALL_POPULATION = FALSE
+PLOT_ALL_TRUE_EVAL = FALSE
 %
 % What to plot for performance?
 PLOT_HV_HISTORY = FALSE
@@ -105,6 +106,7 @@ PLOT_PARETO_FRONT_GA = FALSE
 PLOT_BEST_POPULATION_GA = FALSE
 PLOT_INITIAL_POPULATION_GA = FALSE
 PLOT_ALL_POPULATION_GA = FALSE
+PLOT_ALL_TRUE_EVAL_GA = FALSE
 %
 % What to plot for performance?
 PLOT_HV_HISTORY_GA = FALSE
@@ -113,12 +115,12 @@ PLOT_IGD_HISTORY_GA = FALSE
 %---------------------- PLOT CONFIGURATION COMPARISON -------------------------%
 %
 % What to plot for objective spaces? (TRUE, FALSE)
-PLOT_PARETO_FRONT_COMPARISON = TRUE
-PLOT_BEST_POPULATION_COMPARISON = TRUE
+PLOT_PARETO_FRONT_COMPARISON = FALSE
+PLOT_BEST_POPULATION_COMPARISON = FALSE
 PLOT_INITIAL_POPULATION_COMPARISON = FALSE
 PLOT_ALL_POPULATION_COMPARISON = FALSE
+PLOT_ALL_TRUE_EVAL_COMPARISON = FALSE
 %
 % What to plot for performance?
-PLOT_HV_HISTORY_COMPARISON = FALSE
-PLOT_IGD_HISTORY_COMPARISON = FALSE
-%
+PLOT_HV_HISTORY_COMPARISON = TRUE
+PLOT_IGD_HISTORY_COMPARISON = TRUE

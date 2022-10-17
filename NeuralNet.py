@@ -11,7 +11,6 @@ from DataProcess import do_gap_statistics
 from DataProcess import do_KMeans_clustering, do_oversampling
 from DataProcess import calc_batchsize, do_cross_validation
 
-
 class NeuralNet(torch.nn.Module):
 	"""A neural net architecture"""
 	def __init__(self, D_in, H, D, D_out):
@@ -223,6 +222,3 @@ def calculate(X, problem, device):
 	OUT = denormalize(OUT, OUT_max, OUT_min, axis=1)
 
 	return OUT.detach().numpy()
-
-
-
