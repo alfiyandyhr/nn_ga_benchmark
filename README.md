@@ -13,18 +13,18 @@ https://doi.org/10.1299/jsmecmd.2021.34.235
 ## Requirements:
 
 This code depends on and has been tested in the following environments:
-    * `Python 3.9.6`
-    * `numpy-1.23.4`
-    * `scipy-1.9.2`
-    * `matplotlib-3.6.1`
-    * `pymoo-0.6.0`
-    * `torch-1.12.1`
+- `Python 3.9.6`
+- `numpy-1.23.4`
+- `scipy-1.9.2`
+- `matplotlib-3.6.1`
+- `pymoo-0.6.0`
+- `torch-1.12.1`
 
 ## Routines:
 
-0. Edit the config file (`config.dat`)
-      * if you want to use NN+GA, set line 69 to (`USE_NN = TRUE`)
-      * if you want to use PURE_GA, set line 69 to (`USE_NN = FALSE`)
+0. Edit the config file `config.dat`
+      * if you want to use NN+GA, set line 69 to `USE_NN = TRUE`
+      * if you want to use PURE_GA, set line 69 to `USE_NN = FALSE`
       * edit and fine-tune other variables as well, see `TestedConditions.txt`
 1. Edit the class `NeuralNet` in the file `nnga/NeuralNet.py` to build
    the neural net structure depending on the problem (trial-and-error)
