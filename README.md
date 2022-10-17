@@ -22,15 +22,15 @@ This code depends on and has been tested in the following environments:
 
 ## Routines:
 
-0. Edit the config file `config.dat`
+1. Edit the config file `config.dat`
       * if you want to use NN+GA, set line 69 to `USE_NN = TRUE`
       * if you want to use PURE_GA, set line 69 to `USE_NN = FALSE`
       * edit and fine-tune other variables as well, see `TestedConditions.txt`
-1. Edit the class `NeuralNet` in the file `nnga/NeuralNet.py` to build
+2. Edit the class `NeuralNet` in the file `nnga/NeuralNet.py` to build
    the neural net structure depending on the problem (trial-and-error)
    by default: 3 hidden layers with two layers sharing the same weights
-2. Execute `python main.py`
-3. Execute `python plot.py`
-4. Execute `python animate.py`
-5. See the output files in the `OUTPUT` folder
-6. See the GIF animation in the `PLOT` folder
+3. Execute `python main.py`
+4. Execute `python plot.py`
+5. Execute `python animate.py`
+6. See the output files in the `OUTPUT` folder
+7. See the GIF animation in the `PLOT` folder
